@@ -1,14 +1,17 @@
-@import '@fontsource/fira-mono';
-
 :root {
+	--poker-green: #35654dff;
+	--card-blue: #1e407bff;
+	--chestnut: #a44a3fff;
+	--eggshell: #F8F2DCff;
+	--ivory: #f6f7ebff;
+
 	--font-body: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
 		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-	--font-mono: 'Fira Mono', monospace;
-	--color-bg-0: rgb(202, 216, 228);
-	--color-bg-1: hsl(209, 36%, 86%);
-	--color-bg-2: hsl(224, 44%, 95%);
-	--color-theme-1: #ff3e00;
-	--color-theme-2: #4075a6;
+	--color-bg-0: var(--ivory);
+	--color-bg-1: var(--eggshell);
+	--color-bg-2: var(--poker-green);
+	--color-theme-1: var(--card-blue);
+	--color-theme-2: var(--chestnut);
 	--color-text: rgba(0, 0, 0, 0.7);
 	--column-width: 42rem;
 	--column-margin-top: 4rem;
@@ -19,15 +22,7 @@
 body {
 	min-height: 100vh;
 	margin: 0;
-	background-attachment: fixed;
-	background-color: var(--color-bg-1);
-	background-size: 100vw 100vh;
-	background-image: radial-gradient(
-			50% 50% at 50% 50%,
-			rgba(255, 255, 255, 0.75) 0%,
-			rgba(255, 255, 255, 0) 100%
-		),
-		linear-gradient(180deg, var(--color-bg-0) 0%, var(--color-bg-1) 15%, var(--color-bg-2) 50%);
+	background-color: var(--color-bg-0);
 }
 
 h1,
