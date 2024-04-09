@@ -9,10 +9,6 @@
 	<main>
 		<slot />
 	</main>
-
-	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
-	</footer>
 </div>
 
 <style>
@@ -20,7 +16,17 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 100vh;
+		max-height: 100vh;
+        overflow: auto;
 	}
+
+	@media (min-width: 768px) {
+        .app {
+			box-shadow: inset 0 0 0.8vw #000000;
+			box-sizing: border-box;
+            border: 1.5vw solid var(--chestnut);
+        }
+    }
 
 	main {
 		flex: 1;
@@ -28,26 +34,7 @@
 		flex-direction: column;
 		padding: 1rem;
 		width: 100%;
-		max-width: 64rem;
 		margin: 0 auto;
 		box-sizing: border-box;
-	}
-
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
-	}
-
-	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
-		}
 	}
 </style>
