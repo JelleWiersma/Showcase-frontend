@@ -31,6 +31,7 @@
 
 	nav {
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: space-around;
 		gap: 1rem;
 		--background: var(--color-bg-1);
@@ -52,7 +53,7 @@
         height: 100%;
 		border-radius: 5px;
         background-color: var(--color-bg-1);
-        box-shadow: 0 0 0.8vw #000000;
+        box-shadow: 0 0 0.3vw #000000;
         transition: transform 0.1s ease-in-out;
         z-index: -1;
     }
@@ -76,4 +77,15 @@
 	nav a[aria-current='page'] {
 		text-decoration: underline;
 	}
+
+	@media (max-width: 720px) {
+        .box {
+            width: 100px;
+            height: 25px;
+        }
+
+		nav a {
+			font-size: 20px;
+		}
+    }
 </style>

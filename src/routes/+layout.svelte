@@ -20,7 +20,7 @@
         overflow: auto;
 	}
 
-	@media (min-width: 768px) {
+	@media (min-width: 720px) {
         .app {
 			box-shadow: inset 0 0 0.8vw #000000;
 			box-sizing: border-box;
@@ -29,12 +29,9 @@
     }
 
 	main {
-		flex: 1;
 		display: flex;
-		flex-direction: column;
-		padding: 1rem;
-		width: 100%;
-		margin: 0 auto;
-		box-sizing: border-box;
+		flex: 1;
+		flex-direction: row;
+		justify-content: center;
 	}
 </style>
