@@ -21,7 +21,7 @@
 <style>
 	header {
 		position: fixed;
-		top: 2.1vw;
+		top: calc(2.3vh + 10px);
 		left: 0;
 		width: 100%;
 		display: flex;
@@ -79,6 +79,10 @@
 	}
 
 	@media (max-width: 720px) {
+		header {
+			top: 10px;
+		}
+
         .box {
             width: 100px;
             height: 25px;

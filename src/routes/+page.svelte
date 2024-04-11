@@ -1,7 +1,5 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import face from '$lib/images/face.jpg'
 </script>
 
 <svelte:head>
@@ -10,4 +8,63 @@
 </svelte:head>
 
 <div class="content">
+	<img src={face} alt="Face" class="round-image" />
+    <span class="title-text">Jelle Wiersma</span>
+	<div class="horizontal-line"></div>
+	<p style="margin: 0px">
+		Welkom bij mijn showcase! Op deze site introduceer ik mijzelf, en laat ik een applicatie uit mijn portfolio zien. Voel je vrij om met mij in contact op te nemen via het contactformulier, of de onderstaande informatie. <br><br>
+	</p>
+	<div class="horizontal-line"></div>
+	<span class="subtitle">Opleidingen</span>
+	<ul class="bulleted-list">
+		<li>Havo Natuur en Techniek</li>
+		<li>HBO-ICT Software Engineering</li>
+	</ul>
+	<div class="horizontal-line"></div>
+	<span class="subtitle">Vaardigheden</span>
+	<ul class="bulleted-list">
+		<li>PHP</li>
+		<li>Java</li>
+		<li>Javascript</li>
+		<li>Typescript</li>
+		<li>C#</li>
+		<li>.NET</li>
+		<li>Angular</li>
+		<li>Svelte</li>
+		<li>Python</li>
+		<li>MySQL</li>
+		<li>SQL Server</li>
+		<li>Google Firebase</li>
+		</ul>
 </div>
+
+<style>
+	.round-image {
+		width: 200px;
+		height: 200px;
+		border-radius: 50%;
+		object-fit: cover;
+		display: block;
+		align-self: center;
+	}
+
+	.title-text {
+		text-align: center;
+		font-weight: 800;
+		font-size: 24px;
+		align-self: center;
+	}
+
+	.subtitle {
+		font-weight: 800;
+		font-size: 24px;
+	}
+
+	.bulleted-list {
+        column-count: 3;
+        column-fill: auto;
+        max-height: 100px;
+        overflow: auto;
+		margin: 0;
+    }
+</style>

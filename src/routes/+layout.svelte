@@ -24,7 +24,7 @@
         .app {
 			box-shadow: inset 0 0 0.8vw #000000;
 			box-sizing: border-box;
-            border: 1.5vw solid var(--chestnut);
+            border: 2.3vh solid var(--chestnut);
         }
     }
 
