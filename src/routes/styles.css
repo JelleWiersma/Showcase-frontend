@@ -12,6 +12,7 @@
 	--color-bg-2: var(--poker-green);
 	--color-theme-1: var(--card-blue);
 	--color-theme-2: var(--chestnut);
+	--color-text-white: rgba(255, 255, 255, 0.9);
 	--color-text: rgba(0, 0, 0, 0.7);
 	--column-width: 42rem;
 	--column-margin-top: 4rem;
@@ -42,6 +43,9 @@ input,
 button {
 	font-size: inherit;
 	font-family: inherit;
+	height: 30px;
+	background-color: var(--color-theme-1);
+	color: var(--color-text-white);
 }
 
 button:focus:not(:focus-visible) {

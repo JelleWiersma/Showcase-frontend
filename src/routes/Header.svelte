@@ -3,7 +3,6 @@
 </script>
 
 <header>
-
     <nav>
         <div class="box">
             <a href="/" aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</a>
@@ -15,7 +14,6 @@
             <a href="/showcase" aria-current={$page.url.pathname.startsWith('/showcase') ? 'page' : undefined}>Showcase</a>
         </div>
     </nav>
-
 </header>
 
 <style>

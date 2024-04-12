@@ -29,6 +29,7 @@
 		<li>Typescript</li>
 		<li>C#</li>
 		<li>.NET</li>
+		<li>.NET Blazor</li>
 		<li>Angular</li>
 		<li>Svelte</li>
 		<li>Python</li>
