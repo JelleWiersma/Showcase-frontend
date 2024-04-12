@@ -3,6 +3,7 @@
 
     let showCookieBanner: boolean = false;
 
+    // Check if the user has accepted cookies before
     onMount(() => {
         const hasPermission: string | null = getCookie('cookiePermission');
         const isAccepted: boolean = hasPermission === 'true';
@@ -27,6 +28,7 @@
         return null;
     }
 
+    // Set a cookie with a name, value and expiration date in days
     function setCookie(name: string, value: string, days: number): void {
         const date: Date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
