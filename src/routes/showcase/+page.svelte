@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
 	import { reduced_motion } from './reduced-motion';
@@ -394,4 +394,4 @@
 			transform: translateX(0);
 		}
 	}
-</style>
+</style> -->

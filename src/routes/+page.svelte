@@ -12,7 +12,7 @@
     <span class="title-text">Jelle Wiersma</span>
 	<div class="horizontal-line"></div>
 	<p style="margin: 0px">
-		Welkom bij mijn showcase! Op deze site introduceer ik mijzelf, en laat ik een applicatie uit mijn portfolio zien. Voel je vrij om met mij in contact op te nemen via het contactformulier, of de onderstaande informatie. <br><br>
+		Welkom bij mijn showcase! Op deze site introduceer ik mijzelf, en laat ik een applicatie uit mijn portfolio zien. Voel je vrij om met mij contact op te nemen via het contactformulier, of via de onderstaande informatie. <br><br>
 	</p>
 	<div class="horizontal-line"></div>
 	<span class="subtitle">Opleidingen</span>
@@ -36,7 +36,7 @@
 		<li>MySQL</li>
 		<li>SQL Server</li>
 		<li>Google Firebase</li>
-		</ul>
+	</ul>
 </div>
 
 <style>
@@ -68,4 +68,9 @@
         overflow: auto;
 		margin: 0;
     }
+
+	.bulleted-list li {
+		page-break-inside: avoid;
+		break-inside: avoid-column;
+	}
 </style>
