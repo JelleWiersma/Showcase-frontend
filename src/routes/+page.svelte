@@ -37,6 +37,7 @@
 		<li>SQL Server</li>
 		<li>Google Firebase</li>
 	</ul>
+	<div class="horizontal-line"></div>
 	<span class="subtitle">Gegevens</span>
 	<ul class="bulleted-list">
 		<li><a  href="https://www.linkedin.com/in/jelle-wiersma-9730a2207/" target="_blank" rel="noopener">LinkedIn</a></li>
