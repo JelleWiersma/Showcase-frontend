@@ -19,7 +19,7 @@
 <style>
 	header {
 		position: fixed;
-		top: calc(2.3vh + 10px);
+		top: calc(2.3svh + 10px);
 		left: 0;
 		width: 100%;
 		display: flex;
