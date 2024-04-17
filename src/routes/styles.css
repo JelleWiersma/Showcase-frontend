@@ -21,6 +21,8 @@
 
 	--screen-md: 720px;
 	--screen-sm: 480px;
+
+	
 }
 
 body {
@@ -30,26 +32,43 @@ body {
 	background-color: var(--color-bg-2);
 }
 
-.text-column {
-	display: flex;
-	max-width: 48rem;
-	flex: 0.6;
-	flex-direction: column;
-	justify-content: center;
-	margin: 0 auto;
-}
-
-input,
 button {
-	font-size: inherit;
-	font-family: inherit;
-	height: 30px;
-	background-color: var(--color-theme-1);
-	color: var(--color-text-white);
+  background-color: var(--color-bg-1);
+  border: 0 solid #e2e8f0;
+  border-radius: 1.5rem;
+  box-sizing: border-box;
+  color: #0d172a;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  text-decoration: none #0d172a solid;
+  text-decoration-thickness: auto;
+  transition: all .1s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 0 5px rgba(0,0,0, 0.75);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
-button:focus:not(:focus-visible) {
-	outline: none;
+button:hover {
+  background-color: var(--color-theme-1);
+  color: var(--color-text-white);
+}
+
+button:disabled {
+	background-color: #D3D3D3;
+	color: var(--color-text);
+	cursor: not-allowed;
+}
+
+@media (min-width: 720px) {
+	button {
+    font-size: 1.125rem;
+  }
 }
 
 .content {
@@ -80,6 +99,23 @@ button:focus:not(:focus-visible) {
 	position: absolute;
 	width: 1px;
 	white-space: nowrap;
+}
+
+.title-text {
+	text-align: center;
+	font-weight: 800;
+	font-size: 24px;
+	align-self: center;
+}
+
+.subtitle {
+	font-weight: 800;
+	font-size: 24px;
+}
+
+.nice-form-group {
+	--nf-input-focus-border-color: var(--color-theme-1);
+	--nf-valid-input-border-color: var(--color-bg-2);
 }
 
 @media (max-width: 720px) {

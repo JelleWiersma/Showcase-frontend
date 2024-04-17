@@ -54,18 +54,6 @@
 		align-self: center;
 	}
 
-	.title-text {
-		text-align: center;
-		font-weight: 800;
-		font-size: 24px;
-		align-self: center;
-	}
-
-	.subtitle {
-		font-weight: 800;
-		font-size: 24px;
-	}
-
 	.bulleted-list {
         column-count: 3;
         column-fill: auto;
