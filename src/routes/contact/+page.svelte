@@ -1,12 +1,13 @@
 <svelte:head>
 	<title>Contact</title>
 	<meta name="description" content="Contact form" />
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </svelte:head>
 
 <div class="content">
     <span class="title-text">Stuur een bericht</span>
 	<p style="margin: 0px">
-		Laat een bericht achter voor Jelle Wiersma, en ik zal indien nodig binnen één werkweek een reactie sturen.<br><br>
+		Laat een bericht achter voor Jelle Wiersma, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen<br><br>
 	</p>
 	<div class="horizontal-line"></div>
 
@@ -14,26 +15,26 @@
 		<div class="names-div">
 			<div class="nice-form-group input-field ">
 				<label for="name">Naam</label>
-				<input type="text" id="name" name="name" placeholder="Voornaam" on:input={validateInput}>
+				<input type="text" id="name" name="name" placeholder="Voornaam" on:input={validateInput} maxlength="60">
 				<div class="validation-message">Dit veld is verplicht</div>
 			</div>
 			
 			<div class="nice-form-group input-field">
 				<label for="surname">Achternaam</label>
-				<input type="text" id="surname" name="surname" placeholder="Achternaam" on:input={validateInput}>
+				<input type="text" id="surname" name="surname" placeholder="Achternaam" on:input={validateInput} maxlength="60">
 				<div class="validation-message">Dit veld is verplicht</div>
 			</div>
 		</div>
 		
 		<div class="nice-form-group input-field">
 			<label for="email">Email</label>
-			<input type="email" id="email" name="email" placeholder="Jou email-adres" on:input={validateInput} pattern="{emailReg.source}">
+			<input type="email" id="email" name="email" placeholder="Jou email-adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80">
 			<div class="validation-message">Voer een geldig email adres in</div>
 		</div>
 
 		<div class="nice-form-group input-field">
 			<label for="phone">Telefoonnummer</label>
-			<input type="tel" id="phone" name="phone" placeholder="0687654321" on:input={validateInput} pattern={phoneReg.source}>
+			<input type="tel" id="phone" name="phone" placeholder="0687654321" on:input={validateInput} pattern={phoneReg.source} maxlength="20">
 			<div class="validation-message">Voer een geldig telefoonnummer in</div>
 		</div>
 		
@@ -41,37 +42,41 @@
 
 		<div class="nice-form-group input-field-primary">
 			<label for="subject">Onderwerp</label>
-			<input type="text" id="subject" name="subject" on:input={validateInput}>
+			<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="100">
 			<div class="validation-message">Dit veld is verplicht</div>
 		</div>
 
 		<div class="nice-form-group input-field-primary">
 			<label for="message">Bericht</label>
-			<textarea id="message" name="message" on:input={validateInput}></textarea>
+			<textarea id="message" name="message" on:input={validateInput} maxlength="2000"></textarea>
 			<div class="validation-message">Dit veld is verplicht</div>
 		</div>
-		<button type="submit" disabled={!isValid}>Verstuur</button>
+		<div class="g-recaptcha" data-sitekey="6LdFTL8pAAAAAIn0P8ewm45eq55bH4WvhFfbzE2S"></div>
+		<button type="submit" 
+				disabled={!isValid} 
+				on:submit|preventDefault={onSubmit}>Verstuur</button>
 	</form>
 
 </div>
 
-<script lang='ts'>
-	let isValid = false;
-	let isValidName: boolean = false;
-	let isValidSurname: boolean = false;
-	let isValidEmail: boolean = false;
-	let isValidPhone: boolean = false;
-	let isValidSubject: boolean = false;
-	let isValidMessage: boolean = false;
+<script>
+// @ts-nocheck
 
-	const phoneReg = /(^\+[0-9]{2}|^\+[0-9]{2}\(0\)|^\(\+[0-9]{2}\)\(0\)|^00[0-9]{2}|^0)([0-9]{9}$|[0-9\-\s]{10}$)/
+	
+	let isValid = false;
+	let isValidName = false;
+	let isValidSurname = false;
+	let isValidEmail = false;
+	let isValidPhone = false;
+	let isValidSubject = false;
+	let isValidMessage = false;
+
+	const phoneReg = /(^\+[0-9]{2}|^\+[0-9]{2}\(0\)|^\(\+[0-9]{2}\)\(0\)|^00[0-9]{2}|^0)([0-9]{9}$|[0-9\-\s]{10}$)/;
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-	
-	
-	function validateInput(event: Event) {
+	function validateInput(event) {
 		// Get input element that triggered the event
-		const inputElement = event.target as HTMLInputElement | HTMLTextAreaElement;
+		const inputElement = event.target;
 		inputElement.required = true;
 		// Validate input
 		if (inputElement.name === 'name') {
@@ -90,6 +95,14 @@
 
 		// Set validity state
 		isValid = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage;
+	}
+	
+	function onSubmit(event) {
+		grecaptcha.ready(function(){
+			grecaptcha.execute('6LdFTL8pAAAAAIn0P8ewm45eq55bH4WvhFfbzE2S', {action: 'submit'}).then(function(token) {
+				console.log(token);
+			});
+		});
 	}
 </script>
 
@@ -155,5 +168,10 @@
 
     input:invalid + .validation-message {
         display: block;
+    }
+
+	.g-recaptcha {
+        display: flex;
+        align-self: end;
     }
 </style>
