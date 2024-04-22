@@ -1,7 +1,6 @@
 <svelte:head>
 	<title>Contact</title>
 	<meta name="description" content="Contact form" />
-	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </svelte:head>
 
 <div class="content">
@@ -11,58 +10,61 @@
 	</p>
 	<div class="horizontal-line"></div>
 
-	<form action="" method="POST">
-		<div class="names-div">
-			<div class="nice-form-group input-field ">
-				<label for="name">Naam</label>
-				<input type="text" id="name" name="name" placeholder="Voornaam" on:input={validateInput} maxlength="60">
-				<div class="validation-message">Dit veld is verplicht</div>
+	{#if !showSpinner}
+		<form on:submit={onSubmit}>
+			<div class="names-div">
+				<div class="nice-form-group input-field ">
+					<label for="name">Naam</label>
+					<input type="text" id="name" name="name" placeholder="Voornaam" on:input={validateInput} maxlength="60">
+					<div class="validation-message">Dit veld is verplicht</div>
+				</div>
+				
+				<div class="nice-form-group input-field">
+					<label for="surname">Achternaam</label>
+					<input type="text" id="surname" name="surname" placeholder="Achternaam" on:input={validateInput} maxlength="60">
+					<div class="validation-message">Dit veld is verplicht</div>
+				</div>
 			</div>
 			
 			<div class="nice-form-group input-field">
-				<label for="surname">Achternaam</label>
-				<input type="text" id="surname" name="surname" placeholder="Achternaam" on:input={validateInput} maxlength="60">
+				<label for="email">Email</label>
+				<input type="email" id="email" name="email" placeholder="Jou email-adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80">
+				<div class="validation-message">Voer een geldig email adres in</div>
+			</div>
+
+			<div class="nice-form-group input-field">
+				<label for="phone">Telefoonnummer</label>
+				<input type="tel" id="phone" name="phone" placeholder="0687654321" on:input={validateInput} pattern={phoneReg.source} maxlength="20">
+				<div class="validation-message">Voer een geldig telefoonnummer in</div>
+			</div>
+			
+			<div class="horizontal-line"></div>
+
+			<div class="nice-form-group input-field-primary">
+				<label for="subject">Onderwerp</label>
+				<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="100">
 				<div class="validation-message">Dit veld is verplicht</div>
 			</div>
-		</div>
-		
-		<div class="nice-form-group input-field">
-			<label for="email">Email</label>
-			<input type="email" id="email" name="email" placeholder="Jou email-adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80">
-			<div class="validation-message">Voer een geldig email adres in</div>
-		</div>
 
-		<div class="nice-form-group input-field">
-			<label for="phone">Telefoonnummer</label>
-			<input type="tel" id="phone" name="phone" placeholder="0687654321" on:input={validateInput} pattern={phoneReg.source} maxlength="20">
-			<div class="validation-message">Voer een geldig telefoonnummer in</div>
-		</div>
-		
-		<div class="horizontal-line"></div>
-
-		<div class="nice-form-group input-field-primary">
-			<label for="subject">Onderwerp</label>
-			<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="100">
-			<div class="validation-message">Dit veld is verplicht</div>
-		</div>
-
-		<div class="nice-form-group input-field-primary">
-			<label for="message">Bericht</label>
-			<textarea id="message" name="message" on:input={validateInput} maxlength="2000"></textarea>
-			<div class="validation-message">Dit veld is verplicht</div>
-		</div>
-		<div class="g-recaptcha" data-sitekey="6LdFTL8pAAAAAIn0P8ewm45eq55bH4WvhFfbzE2S"></div>
-		<button type="submit" 
-				disabled={!isValid} 
-				on:submit|preventDefault={onSubmit}>Verstuur</button>
-	</form>
-
+			<div class="nice-form-group input-field-primary">
+				<label for="message">Bericht</label>
+				<textarea id="message" name="message" on:input={validateInput} maxlength="2000"></textarea>
+				<div class="validation-message">Dit veld is verplicht</div>
+			</div>
+			<div class="g-recaptcha" id="recaptcha"></div>
+			<button type="submit" 
+					disabled={!isValid}>Verstuur</button>
+		</form>
+	{:else}
+		<div class="spinner"></div>
+	{/if}
 </div>
 
 <script>
 // @ts-nocheck
-
+	import { onMount, afterUpdate } from 'svelte';
 	
+	// Form variables
 	let isValid = false;
 	let isValidName = false;
 	let isValidSurname = false;
@@ -70,10 +72,69 @@
 	let isValidPhone = false;
 	let isValidSubject = false;
 	let isValidMessage = false;
-
+	let isValidRecaptcha = false;
 	const phoneReg = /(^\+[0-9]{2}|^\+[0-9]{2}\(0\)|^\(\+[0-9]{2}\)\(0\)|^00[0-9]{2}|^0)([0-9]{9}$|[0-9\-\s]{10}$)/;
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+	//Recaptcha variables
+	const recaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_RECAPTCHA_SITE_KEY : import.meta.env.VITE_RECAPTCHA_TEST_KEY;
+	let recaptcha;
+	let token;
+	let rerenderCaptcha = false;
+	
+	let showSpinner = false;
+
+	//Render Recaptcha
+	onMount(async () => {
+		if (typeof window !== 'undefined') {
+			window.recaptchaCallback = function() {
+				recaptcha = grecaptcha.render('recaptcha', {
+					'sitekey': recaptchaSiteKey,
+					'callback': 'handleCaptcha',
+					'expired-callback': 'handleCaptchaExpired'
+				});
+			};
+			
+			window.handleCaptcha = function(response) {
+				token = response;
+				isValidRecaptcha = true;
+				isValid = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
+			};
+
+			window.handleCaptchaExpired = function() {
+				isValidRecaptcha = false;
+				isValid = false;
+			};
+			if(document.querySelector('script[src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit"]') === null){
+				const script = document.createElement('script');
+				script.src = 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit';
+				script.async = true;
+				script.defer = true;
+				document.body.appendChild(script);
+			} else {
+				recaptcha = grecaptcha.render('recaptcha', {
+					'sitekey': recaptchaSiteKey,
+					'callback': 'handleCaptcha',
+					'expired-callback': 'handleCaptchaExpired'
+				});
+			}
+			
+		}
+	});
+
+	afterUpdate(() => {
+		if (typeof window !== 'undefined') {
+			if (rerenderCaptcha) {
+				grecaptcha.render('recaptcha', {
+					'sitekey': recaptchaSiteKey,
+					'callback': 'handleCaptcha',
+					'expired-callback': 'handleCaptchaExpired'
+				});
+				rerenderCaptcha = false;
+			}
+		}
+	});
+	
 	function validateInput(event) {
 		// Get input element that triggered the event
 		const inputElement = event.target;
@@ -94,15 +155,55 @@
 		}
 
 		// Set validity state
-		isValid = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage;
+		isValid = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
 	}
 	
-	function onSubmit(event) {
-		grecaptcha.ready(function(){
-			grecaptcha.execute('6LdFTL8pAAAAAIn0P8ewm45eq55bH4WvhFfbzE2S', {action: 'submit'}).then(function(token) {
-				console.log(token);
-			});
-		});
+	async function onSubmit(event) {
+		event.preventDefault();
+        showSpinner = true;
+		// Get the form
+		const form = event.target;
+		
+		// Prepare data
+		const data = {
+			name: form.name.value,
+			surname: form.surname.value,
+			email: form.email.value,
+			phone: form.phone.value,
+			subject: form.subject.value,
+			message: form.message.value,
+			recaptchaToken: token
+		};
+	    // Send a POST request
+		const response = await fetch('/contact', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(data)
+    	});
+		
+		if (response.ok) {
+			console.log('Data sent successfully');
+		} else {
+			console.log('Failed to send data');
+		}
+
+		reset();
+    }
+
+	function reset() {
+		isValid = false;
+		isValidName = false;
+		isValidSurname = false;
+		isValidEmail = false;
+		isValidPhone = false;
+		isValidSubject = false;
+		isValidMessage = false;
+		isValidRecaptcha = false;
+		rerenderCaptcha = true;
+		grecaptcha.reset(recaptcha);
+		showSpinner = false;
 	}
 </script>
 
