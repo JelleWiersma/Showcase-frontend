@@ -4,27 +4,21 @@ export async function POST({request}) {
     const data = JSON.parse(await request.text());
 
     // Get the domain from an environment variable
-    const domain = process.env.NODE_ENV === 'production' ? process.env.PROD_API_DOMAIN : process.env.DEV_API_DOMAIN;
+    const domain = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
+    console.log("sending the following data to " + domain + "/contact");
     console.log(data);
-    // Send a POST request to the server API
-    // const response = await fetch(`${domain}/contact`, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(data)
-    // });
-
-    // if (!response.ok) {
-    //     throw new Error('Failed to send data to the server API');
-    // }
-
-    const response = new Response(JSON.stringify(data), {
-        status: 200,
+    
+    // Send the data to the server API
+    const apiResponse = await fetch(`${domain}/contact`, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(data)
     });
 
-    return response;
+    // Parse the response;
+    console.log(apiResponse);
+
+    return apiResponse;
 };
