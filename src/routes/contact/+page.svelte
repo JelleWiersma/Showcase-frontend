@@ -6,8 +6,13 @@
 <div class="content">
     <span class="title-text">Stuur een bericht</span>
 	<p style="margin: 0px">
-		Laat een bericht achter voor Jelle Wiersma, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen<br><br>
+		Laat een bericht achter voor Jelle Wiersma, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen.<br><br>
 	</p>
+	{#if showConfirmation}
+		<span class="confirmation-message">Bedankt voor je bericht! Ik zal zo snel mogelijk reageren.</span>
+	{:else if showFailure}
+		<span class="failure-message">Er is iets mis gegaan. Probeer het later opnieuw.</span> 
+	{/if}
 	<div class="horizontal-line"></div>
 
 	{#if !showSpinner}
@@ -15,13 +20,13 @@
 			<div class="names-div">
 				<div class="nice-form-group input-field ">
 					<label for="name">Naam</label>
-					<input type="text" id="name" name="name" placeholder="Voornaam" on:input={validateInput} maxlength="60">
+					<input type="text" id="name" name="name" placeholder="Voornaam" on:input={validateInput} maxlength="60" autocomplete="given-name">
 					<div class="validation-message">Dit veld is verplicht</div>
 				</div>
 				
 				<div class="nice-form-group input-field">
 					<label for="surname">Achternaam</label>
-					<input type="text" id="surname" name="surname" placeholder="Achternaam" on:input={validateInput} maxlength="60">
+					<input type="text" id="surname" name="surname" placeholder="Achternaam" on:input={validateInput} maxlength="60" autocomplete="family-name">
 					<div class="validation-message">Dit veld is verplicht</div>
 				</div>
 			</div>
@@ -42,7 +47,7 @@
 
 			<div class="nice-form-group input-field-primary">
 				<label for="subject">Onderwerp</label>
-				<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="100">
+				<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="100" autocomplete="off">
 				<div class="validation-message">Dit veld is verplicht</div>
 			</div>
 
@@ -82,7 +87,10 @@
 	let token;
 	let rerenderCaptcha = false;
 	
+	//Page variables
 	let showSpinner = false;
+	let showConfirmation = false;
+	let showFailure = false;
 
 	//Render Recaptcha
 	onMount(async () => {
@@ -139,19 +147,20 @@
 		// Get input element that triggered the event
 		const inputElement = event.target;
 		inputElement.required = true;
+		const value = inputElement.value.trim();
 		// Validate input
 		if (inputElement.name === 'name') {
-			isValidName = inputElement.value.trim() !== '';
+			isValidName = value.length >= 1 && value.length <= 60;
 		} else if (inputElement.name === 'surname') {
-			isValidSurname = inputElement.value.trim() !== '';
+			isValidSurname = value.length >= 1 && value.length <= 60;
 		} else if (inputElement.name === 'email') {
-			isValidEmail = emailReg.test(inputElement.value.trim());
+			isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
 		} else if (inputElement.name === 'phone') {
-			isValidPhone = phoneReg.test(inputElement.value.trim());
+			isValidPhone = value.length >= 1 && value.length <= 20 && phoneReg.test(value);
 		} else if (inputElement.name === 'subject') {
-			isValidSubject = inputElement.value.trim() !== '';
+			isValidSubject = value.length >= 1 && value.length <= 100;
 		} else if (inputElement.name === 'message') {
-			isValidMessage = inputElement.value.trim() !== '';
+			isValidMessage = value.length >= 1 && value.length <= 2000;
 		}
 
 		// Set validity state
@@ -184,9 +193,11 @@
     	});
 		
 		if (response.ok) {
-			console.log('Data sent successfully');
+			showFailure = false;
+			showConfirmation = true;
 		} else {
-			console.log('Failed to send data');
+			showConfirmation = false;
+			showFailure = true;
 		}
 
 		reset();
@@ -263,7 +274,7 @@
 
 	.validation-message {
         display: none;
-        color: red;
+        color: var(--color-error);
 		margin-top: 2px;
     }
 
@@ -275,4 +286,12 @@
         display: flex;
         align-self: end;
     }
+
+	.confirmation-message {
+		color: var(--color-success);
+	}
+
+	.failure-message {
+		color: var(--color-error);
+	}
 </style>
