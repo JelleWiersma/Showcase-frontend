@@ -53,7 +53,7 @@
 			</div>
 			<div class="g-recaptcha" id="recaptcha"></div>
 			<button type="submit" 
-					disabled={!isValid}>Verstuur</button>
+					disabled={!canSubmit}>Verstuur</button>
 		</form>
 	{:else}
 		<div class="spinner"></div>
@@ -75,9 +75,10 @@
 <script>
 // @ts-nocheck
 	import { onMount, afterUpdate } from 'svelte';
+	import DOMPurify from 'dompurify';
 	
 	// Form variables
-	let isValid = false;
+	let canSubmit = false;
 	let isValidName = false;
 	let isValidSurname = false;
 	let isValidEmail = false;
@@ -104,6 +105,7 @@
 	//Render Recaptcha
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
+			// render recaptcha when the scipt is loaded
 			window.recaptchaCallback = function() {
 				recaptcha = grecaptcha.render('recaptcha', {
 					'sitekey': recaptchaSiteKey,
@@ -112,16 +114,20 @@
 				});
 			};
 			
+			// Callback function for successfull recaptcha
 			window.handleCaptcha = function(response) {
 				token = response;
 				isValidRecaptcha = true;
-				isValid = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
+				canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
 			};
 
+			// Callback function for expired recaptcha
 			window.handleCaptchaExpired = function() {
 				isValidRecaptcha = false;
-				isValid = false;
+				canSubmit = false;
 			};
+
+			// Load recaptcha script
 			if(document.querySelector('script[src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit"]') === null){
 				const script = document.createElement('script');
 				script.src = 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit';
@@ -129,6 +135,7 @@
 				script.defer = true;
 				document.body.appendChild(script);
 			} else {
+				//render recaptcha if the script is already loaded
 				recaptcha = grecaptcha.render('recaptcha', {
 					'sitekey': recaptchaSiteKey,
 					'callback': 'handleCaptcha',
@@ -140,6 +147,7 @@
 	});
 
 	afterUpdate(() => {
+		// Rerender recaptcha when the form has been submitted
 		if (typeof window !== 'undefined') {
 			if (rerenderCaptcha) {
 				grecaptcha.render('recaptcha', {
@@ -153,10 +161,12 @@
 	});
 	
 	function validateInput(event) {
-		// Get input element that triggered the event
+		// prepare input
 		const inputElement = event.target;
 		inputElement.required = true;
-		const value = inputElement.value.trim();
+		const value = DOMPurify.sanitize(inputElement.value.trim());
+		
+        
 		// Validate input
 		if (inputElement.name === 'name') {
 			isValidName = value.length >= 1 && value.length <= 60;
@@ -172,8 +182,8 @@
 			isValidMessage = value.length >= 1 && value.length <= 2000;
 		}
 
-		// Set validity state
-		isValid = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
+		// Update submit button
+		canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
 	}
 	
 	async function onSubmit(event) {
@@ -213,7 +223,7 @@
     }
 
 	function reset() {
-		isValid = false;
+		canSubmit = false;
 		isValidName = false;
 		isValidSurname = false;
 		isValidEmail = false;
