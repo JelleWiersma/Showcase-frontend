@@ -164,7 +164,7 @@
 		// prepare input
 		const inputElement = event.target;
 		inputElement.required = true;
-		const value = DOMPurify.sanitize(inputElement.value.trim());
+		const value = inputElement.value.trim();
 		
         
 		// Validate input
@@ -194,12 +194,12 @@
 		
 		// Prepare data
 		const data = {
-			name: form.name.value,
-			surname: form.surname.value,
-			email: form.email.value,
-			phone: form.phone.value,
-			subject: form.subject.value,
-			message: form.message.value,
+			name: DOMPurify.sanitize(form.name.value),
+			surname: DOMPurify.sanitize(form.surname.value),
+			email: DOMPurify.sanitize(form.email.value),
+			phone: DOMPurify.sanitize(form.phone.value),
+			subject: DOMPurify.sanitize(form.subject.value),
+			message: DOMPurify.sanitize(form.message.value),
 			recaptchaToken: token
 		};
 	    // Send a POST request
