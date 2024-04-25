@@ -8,11 +8,6 @@
 	<p style="margin: 0px">
 		Laat een bericht achter voor Jelle Wiersma, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen.<br><br>
 	</p>
-	{#if showConfirmation}
-		<span class="confirmation-message">Bedankt voor je bericht! Ik zal zo snel mogelijk reageren.</span>
-	{:else if showFailure}
-		<span class="failure-message">Er is iets mis gegaan. Probeer het later opnieuw.</span> 
-	{/if}
 	<div class="horizontal-line"></div>
 
 	{#if !showSpinner}
@@ -63,6 +58,18 @@
 	{:else}
 		<div class="spinner"></div>
 	{/if}
+
+	{#if showConfirmation}
+		<div class="confirmation-message" bind:this={confirmationMessage}>
+			Je bericht is succesvol verzonden.
+			<button class="close-button" on:click={() => { confirmationMessage.style.display = 'none'; showConfirmation = false }}>X</button>
+		</div>
+	{:else if showFailure}
+		<div class="failure-message" bind:this={failureMessage}>
+			Bericht kon niet worden verzonden. Probeer het later opnieuw.
+			<button class="close-button" on:click={() => { failureMessage.style.display = 'none'; showFailure = false }}>X</button>
+		</div> 
+	{/if}
 </div>
 
 <script>
@@ -90,7 +97,9 @@
 	//Page variables
 	let showSpinner = false;
 	let showConfirmation = false;
+	let confirmationMessage;
 	let showFailure = false;
+	let failureMessage;
 
 	//Render Recaptcha
 	onMount(async () => {
@@ -286,12 +295,4 @@
         display: flex;
         align-self: end;
     }
-
-	.confirmation-message {
-		color: var(--color-success);
-	}
-
-	.failure-message {
-		color: var(--color-error);
-	}
 </style>

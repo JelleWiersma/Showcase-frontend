@@ -155,3 +155,51 @@ button:disabled {
 		padding-top: 45px;
 	}
 }
+
+.confirmation-message, .failure-message {
+	position: fixed;
+	bottom: 3svh;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 20px;
+	padding-right: 40px;
+	background-color: var(--color-bg-1);
+	border-radius: .25rem;
+	z-index: 9999;
+	box-shadow: 0 0 5px rgba(0,0,0, 0.75);
+	animation: slide-up 0.3s ease-out;
+}
+
+.confirmation-message button, .failure-message button {
+	position: absolute;
+	top: 20px;
+	right: 10px;
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	border: 0;
+	background-color: transparent;
+	box-shadow: none;
+	padding: 0;
+}
+
+.confirmation-message button:hover, .failure-message button:hover {
+	color: gray
+}
+
+.confirmation-message {
+	color: var(--color-success);
+}
+
+.failure-message {
+	color: var(--color-error);
+}
+
+@keyframes slide-up {
+	0% {
+		transform: translateX(-50%) translateY(100%);
+	}
+	100% {
+		transform: translateX(-50%) translateY(0);
+	}
+}
