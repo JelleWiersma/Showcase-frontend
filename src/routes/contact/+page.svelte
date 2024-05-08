@@ -12,7 +12,7 @@
 
 	{#if !showSpinner}
 		<form on:submit={onSubmit}>
-			<div class="names-div">
+			<section class="names-div">
 				<div class="nice-form-group input-field ">
 					<label for="name">Naam</label>
 					<input type="text" id="name" name="name" placeholder="Voornaam" on:input={validateInput} maxlength="60" autocomplete="given-name">
@@ -24,33 +24,33 @@
 					<input type="text" id="surname" name="surname" placeholder="Achternaam" on:input={validateInput} maxlength="60" autocomplete="family-name">
 					<div class="validation-message">Dit veld is verplicht</div>
 				</div>
-			</div>
+			</section>
 			
-			<div class="nice-form-group input-field">
+			<section class="nice-form-group input-field">
 				<label for="email">Email</label>
 				<input type="email" id="email" name="email" placeholder="Jou email-adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80">
 				<div class="validation-message">Voer een geldig email adres in</div>
-			</div>
+			</section>
 
-			<div class="nice-form-group input-field">
+			<section class="nice-form-group input-field">
 				<label for="phone">Telefoonnummer</label>
 				<input type="tel" id="phone" name="phone" placeholder="0687654321" on:input={validateInput} pattern={phoneReg.source} maxlength="20">
 				<div class="validation-message">Voer een geldig telefoonnummer in</div>
-			</div>
+			</section>
 			
 			<div class="horizontal-line"></div>
 
-			<div class="nice-form-group input-field-primary">
+			<section class="nice-form-group input-field-primary">
 				<label for="subject">Onderwerp</label>
 				<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="100" autocomplete="off">
 				<div class="validation-message">Dit veld is verplicht</div>
-			</div>
+			</section>
 
-			<div class="nice-form-group input-field-primary">
+			<section class="nice-form-group input-field-primary">
 				<label for="message">Bericht</label>
 				<textarea id="message" name="message" on:input={validateInput} maxlength="2000"></textarea>
 				<div class="validation-message">Dit veld is verplicht</div>
-			</div>
+			</section>
 			<div class="g-recaptcha" id="recaptcha"></div>
 			<button type="submit" 
 					disabled={!canSubmit}>Verstuur</button>
