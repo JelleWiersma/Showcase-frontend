@@ -42,7 +42,7 @@
 
 			<section class="nice-form-group input-field-primary">
 				<label for="subject">Onderwerp</label>
-				<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="100" autocomplete="off">
+				<input type="text" id="subject" name="subject" on:input={validateInput} maxlength="200" autocomplete="off">
 				<div class="validation-message">Dit veld is verplicht</div>
 			</section>
 
@@ -177,7 +177,7 @@
 		} else if (inputElement.name === 'phone') {
 			isValidPhone = value.length >= 1 && value.length <= 20 && phoneReg.test(value);
 		} else if (inputElement.name === 'subject') {
-			isValidSubject = value.length >= 1 && value.length <= 100;
+			isValidSubject = value.length >= 1 && value.length <= 200;
 		} else if (inputElement.name === 'message') {
 			isValidMessage = value.length >= 1 && value.length <= 2000;
 		}
