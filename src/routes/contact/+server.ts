@@ -10,3 +10,7 @@ export async function POST({request}) {
     // Return the response
     return apiResponse;
 }
+
+export async function GET() {
+    return;
+}
