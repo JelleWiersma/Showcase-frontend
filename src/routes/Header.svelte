@@ -78,7 +78,6 @@
 
 	nav {
 		display: flex;
-		flex-wrap: wrap;
 		justify-content: space-around;
 		gap: 1rem;
 		--background: var(--color-bg-1);
@@ -139,4 +138,18 @@
 			font-size: 20px;
 		}
     }
+
+	@media (max-width: 335px) {
+		nav {
+			gap: 5px;
+		}
+
+		.box {
+			width: 80px;
+			height: 20px;
+		}
+
+		nav a {
+			font-size: 16px;}
+	}
 </style>
