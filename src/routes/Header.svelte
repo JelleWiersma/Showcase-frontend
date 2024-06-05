@@ -1,10 +1,46 @@
 <script>
 	import { page } from '$app/stores';
+	import { hideNavigation } from '$lib/store';
+    import { onMount } from 'svelte';
+
+	let shouldHide = false;
+	hideNavigation.subscribe(value => {
+		shouldHide = value;
+	});
+
+	let isHidden = false;
+	/**
+     * @type {NodeJS.Timeout | undefined}
+     */
+	let timeoutId;
+
+	onMount(() => {
+		if (shouldHide) {
+			isHidden = true;
+		}
+	});
+	
+	function onMouseEnter() {
+		if (shouldHide) {
+			if(timeoutId){
+				clearTimeout(timeoutId);
+			}
+			isHidden = false;
+		}
+	}
+
+	function onMouseLeave() {
+		if (shouldHide) {
+			timeoutId = setTimeout(() => {
+				isHidden = true;
+			}, 2000);
+		}
+	}
 </script>
 
-<header>
-    <nav>
-        <div class="box">
+<header role="navigation" class:hideNav={isHidden} on:mouseenter={onMouseEnter} on:mouseleave={onMouseLeave}>
+	<nav>
+		<div class="box">
             <a href="/" aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</a>
         </div>
         <div class="box">
@@ -20,11 +56,16 @@
 	header {
 		position: fixed;
 		top: calc(2.3svh + 10px);
-		left: 0;
-		width: 100%;
+		left: 50%;
+		transform: translateX(-50%);
 		display: flex;
 		justify-content: center;
 		z-index: 1000;
+		transition: top 0.5s ease-in-out;
+	}
+
+	.hideNav {
+		top: -30px;
 	}
 
 	nav {
