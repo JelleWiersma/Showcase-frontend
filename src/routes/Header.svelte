@@ -4,11 +4,13 @@
     import { onMount } from 'svelte';
 
 	let shouldHide = false;
+	let isHidden = false;
 	hideNavigation.subscribe(value => {
 		shouldHide = value;
+		isHidden = value;
 	});
 
-	let isHidden = false;
+	
 	/**
      * @type {NodeJS.Timeout | undefined}
      */
@@ -17,6 +19,8 @@
 	onMount(() => {
 		if (shouldHide) {
 			isHidden = true;
+		} else {
+			isHidden = false;
 		}
 	});
 	
@@ -26,6 +30,8 @@
 				clearTimeout(timeoutId);
 			}
 			isHidden = false;
+		} else{ 
+			isHidden = false;
 		}
 	}
 
@@ -34,6 +40,8 @@
 			timeoutId = setTimeout(() => {
 				isHidden = true;
 			}, 2000);
+		} else {
+			isHidden = false;
 		}
 	}
 </script>

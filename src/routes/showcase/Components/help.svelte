@@ -14,7 +14,6 @@
 
     function open() {
         isOpen = true;
-        console.log('open');
     }
 
     function close() {
