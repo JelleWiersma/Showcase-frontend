@@ -9,7 +9,7 @@
             <span><b>Spelverloop</b></span>
             <p>Gedurende het spel spelen de spelers om de beurt één of meerdere kaarten op de pot. Een kaart mag alleen gespeeld worden als de waarde van de kaart hoger of gelijk is aan de laatst gespeelde kaart, waar de 2 het laagst is, en de A het hoogst. Er zijn geen jokers. Kaarten met dezelfde waarde mogen tegelijk gespeeld worden.
                 De speler die als eerst een 4 kan opleggen begint, als er geen 4 is de 5, enzovoort.</p>
-            <p>Er zijn 4 pestkaarten, die altijd gespeeld mogen worden:</p>
+            <p style="margin-bottom: 0">Er zijn 4 pestkaarten, die altijd gespeeld mogen worden:</p>
             <ul>
                 <li>De 2: Geen effect, is de laagste kaart mogelijk.</li>
                 <li>De 3: Is 'doorzichtig', waardoor de kaart er onder telt voor de volgende speler.</li>
@@ -118,7 +118,7 @@
         margin-bottom: 10px;
     }
 
-    p {
+    p, ul {
         margin-top: 0;
     }
 </style>
