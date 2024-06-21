@@ -1,7 +1,7 @@
 import pkg from 'validator';
 const { escape } = pkg;
 
-export async function makeRequest(endpoint: string, method: string, data: any) {
+export async function sendSanitizedRequest(endpoint: string, method: string, data: any) {
     // Get the domain from an environment variable
     const domain = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
