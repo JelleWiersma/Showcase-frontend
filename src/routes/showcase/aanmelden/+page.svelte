@@ -45,7 +45,7 @@
 		const data = {
 			Username: DOMPurify.sanitize(form.name.value),
 			Email: DOMPurify.sanitize(form.email.value),
-			Password: DOMPurify.sanitize(form.password.value)
+			Password: form.password.value
 		};
 	    // Send a POST request
 		const response = await fetch('/showcase/register', {
