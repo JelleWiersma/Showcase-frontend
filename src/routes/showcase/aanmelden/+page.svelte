@@ -13,7 +13,6 @@
 	let confirmationMessage;
 	let showFailure = false;
 	let failureMessage;
-	let responseMessage;
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
 
@@ -62,8 +61,6 @@
 		} else {
 			showConfirmation = false;
 			showFailure = true;
-			responseMessage = await response;
-			console.log(responseMessage);
 		}
 
 		reset();
