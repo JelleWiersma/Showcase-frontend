@@ -48,7 +48,7 @@
 			Password: form.password.value
 		};
 	    // Send a POST request
-		const response = await fetch('/showcase/register', {
+		const response = await fetch('/showcase/aanmelden', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -62,6 +62,8 @@
 		} else {
 			showConfirmation = false;
 			showFailure = true;
+			responseMessage = await response;
+			console.log(responseMessage);
 		}
 
 		reset();
@@ -107,12 +109,12 @@
 
 		{#if showConfirmation}
 			<div class="confirmation-message" bind:this={confirmationMessage}>
-				Je bericht is succesvol verzonden.
+				Je account is succesvol aangemaakt. Check je email voor een bevestigingslink.
 				<button class="close-button" on:click={() => { confirmationMessage.style.display = 'none'; showConfirmation = false }}>X</button>
 			</div>
 		{:else if showFailure}
 			<div class="failure-message" bind:this={failureMessage}>
-				Je account kon niet aangemaakt worden. Probeer een ander email-adres.
+				Je account kon niet aangemaakt worden.
 				<button class="close-button" on:click={() => { failureMessage.style.display = 'none'; showFailure = false }}>X</button>
 			</div> 
 		{/if}
