@@ -1,3 +1,4 @@
+import { refreshTokenIfNeeded } from './auth';
 import pkg from 'validator';
 const { escape } = pkg;
 
@@ -48,7 +49,7 @@ export async function sendAuthenticatedRequest(endpoint: string, method: string,
     const domain = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
     // Send the request to the server API
-    const response = await fetch(`${domain}/api/${endpoint}`, {
+    let response = await fetch(`${domain}/api/${endpoint}`, {
         method,
         headers: {
             'Content-Type': 'application/json',
@@ -57,6 +58,9 @@ export async function sendAuthenticatedRequest(endpoint: string, method: string,
         body: JSON.stringify(data)
     });
 
+    //refresh tokens if needed
+    
+    
     // Parse and return the response
     return response;
 }

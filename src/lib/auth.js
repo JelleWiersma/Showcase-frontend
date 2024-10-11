@@ -1,4 +1,4 @@
-
+import { getCookieValue } from './utils.js';
 
 // @ts-ignore
 export async function register(email, username, password) {
@@ -103,4 +103,18 @@ export async function refreshTokenIfNeeded() {
             throw new Error('Token refresh failed');
         }
     }
+}
+
+// @ts-ignore
+export function getTokenAndRefreshToken() {
+    return {
+        token: getCookieValue(document.cookie, 'token'),
+        refreshToken: getCookieValue(document.cookie, 'refreshToken')
+    };
+}
+
+// @ts-ignore
+export function setTokenAndRefreshToken(token, refreshToken) {
+    document.cookie = `token=${token}; HttpOnly`;
+    document.cookie = `refreshToken=${refreshToken}; HttpOnly`;
 }
