@@ -12,7 +12,6 @@
     let showEmailNotVerifiedMessage = false;
 
     $: {
-        isSmallScreen = innerWidth < 1200;
         verify = $page.url.searchParams.get('verify');
         if (verify === 'success') {
             showEmailVerifiedMessage = true;
@@ -26,6 +25,7 @@
 
 	onMount(() => {
         hideNavigation.set(false);
+        isSmallScreen = innerWidth < 1200;
     });
 </script>
 

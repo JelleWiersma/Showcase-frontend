@@ -1,6 +1,7 @@
 <script>
     // @ts-nocheck
  	export let form;
+    import { goto } from '$app/navigation';
 
     let canSubmit = false;
     let isValidEmail = false;
@@ -20,7 +21,7 @@
         if(form?.email){
             isValidEmail = true;
         }
-        
+
         // Validate input
         if (inputElement.name === 'email') {
             isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
@@ -30,6 +31,7 @@
         // Update submit button
         canSubmit = isValidEmail && isValidPassword;
     }
+
     if(form?.errors){
         // Check if the user is not allowed or requires two factor authentication
         if (form.errors.NotAllowed) {
@@ -55,7 +57,7 @@
     <form method="POST"> <!-- on:submit={onSubmit} -->
         <section class="nice-form-group input-field">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="Email adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80" value={form?.email}>
+            <input type="email" id="email" name="email" placeholder="Email adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80" value={form?.email? form.email : ''}>
             <div class="validation-message">Vul een geldig email adres in</div>
         </section>
         <section class="nice-form-group input-field">

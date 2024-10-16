@@ -1,7 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { sendRequest } from '$lib/api';
 import { dev } from '$app/environment';
-import path from 'path';
 
 export const actions = {
     default: async ({ request, cookies }) => {
@@ -56,7 +55,8 @@ export const actions = {
             return fail(400, { email: email, errors: responseJson.errors});
         } 
 
-        cookies.set('token', responseJson.Token, {
+        console.log(responseJson);
+        cookies.set('token', responseJson.token, {
             path: '/',
             httpOnly: true,
             sameSite: 'strict',
@@ -64,13 +64,14 @@ export const actions = {
             maxAge: 60 * 60 * 24 * 30
         });
 
-        cookies.set('refreshToken', responseJson.RefreshToken, {
+        cookies.set('refreshToken', responseJson.refreshToken, {
             path: '/',
             httpOnly: true,
             sameSite: 'strict',
             secure: !dev,
             maxAge: 60 * 60 * 24 * 30 * 6
         });
-        throw redirect(307, '/showcase');
+        
+        throw redirect(303, '/showcase');
     }
 };
