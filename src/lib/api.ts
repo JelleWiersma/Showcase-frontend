@@ -1,4 +1,3 @@
-import { refreshTokenIfNeeded } from './auth';
 import pkg from 'validator';
 const { escape } = pkg;
 
@@ -58,9 +57,6 @@ export async function sendAuthenticatedRequest(endpoint: string, method: string,
         body: JSON.stringify(data)
     });
 
-    //refresh tokens if needed
-    
-    
     // Parse and return the response
     return response;
 }

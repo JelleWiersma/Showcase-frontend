@@ -55,13 +55,12 @@ export const actions = {
             return fail(400, { email: email, errors: responseJson.errors});
         } 
 
-        console.log(responseJson);
         cookies.set('token', responseJson.token, {
             path: '/',
             httpOnly: true,
             sameSite: 'strict',
             secure: !dev,
-            maxAge: 60 * 60 * 24 * 30
+            maxAge: 60 * 60 * 24 * 30 * 6
         });
 
         cookies.set('refreshToken', responseJson.refreshToken, {
