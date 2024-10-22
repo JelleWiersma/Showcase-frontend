@@ -1,20 +1,38 @@
 <script>
     import Help from "./help.svelte";
     import {goto} from "$app/navigation";
-
+    import { user } from "$lib/store";
     
     /**
      * @type {Help}
      */
     let help;
+
+    async function handleLogout() {
+        const response = await fetch('/showcase/uitloggen', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams()
+        });
+        if(response.ok) {
+            user.set(null);
+        }
+    }
 </script>
 
 <div class="content">
     <span class="title-text">Zweeds Pesten</span>
     <p style="margin: 0px">Welkom bij de showcase! Om een indruk te geven van mijn vaardigheden heb ik een online kaartspel gemaakt. In sommige kringen wordt dit spel “Klootzakken” genoemd, maar in mijn omgeving staat het bekend als “Zweeds Pesten”. Dus nodig een paar vrienden uit, probeer ze te verslaan, en veel plezier!</p>
     <div class="horizontal-line"></div>
-    <button class="menu-button" on:click={() => goto('/showcase/inloggen')}>Inloggen</button>
-    <button class="menu-button" on:click={() => goto('/showcase/aanmelden')}>Account maken</button>
+    {#if $user && $user.loggedIn}
+        <button class="menu-button" on:click={() => goto('/showcase/spel')}>Spelen</button>
+        <button class="menu-button" on:click={handleLogout}>Uitloggen</button>
+    {:else}
+        <button class="menu-button" on:click={() => goto('/showcase/inloggen')}>Inloggen</button>
+        <button class="menu-button" on:click={() => goto('/showcase/aanmelden')}>Account maken</button>
+    {/if}
     <button class="menu-button" on:click={help.open()}>Speluitleg</button>
 </div>
 

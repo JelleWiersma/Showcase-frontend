@@ -2,6 +2,7 @@ import type { Handle } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import { VITE_JWT_KEY } from '$env/static/private';
 import { handleTokenRefresh } from '$lib/auth.ts';
+import type { User } from '$lib/models/User';
 
 
 // custom redirect from joy of code `https://github.com/JoysOfCode/sveltekit-auth-cookies/blob/migration/src/hooks.ts`
@@ -17,18 +18,34 @@ const protectedRoutes: string[] = [
 ];
 
 export const handle: Handle = async ({ event, resolve }) => {
+    // Determine if user is logged in
+    let token = event.cookies.get('token');
+    if(!token && event.locals.user) event.locals.user.loggedIn = false;
+
+    if(token) {
+        const user = await verifyToken(token, event);
+        if(user){
+            event.locals.user = user;
+        } else {
+            event.cookies.delete('token', { path: '/' });
+            event.cookies.delete('refreshToken', { path: '/' });
+        } 
+    };
+
     // if route is not protected, resolve
     if(!protectedRoutes.includes(event.url.pathname))
         return resolve(event);
     
-    let token = event.cookies.get('token');
-    const dev = import.meta.env.MODE === 'development';
-    
-    // if no token and route is protected, redirect to login
-    if (!token)
+
+    // if not logged in and route is protected, redirect to login
+    if (!event.locals.user || !event.locals.user.loggedIn)
         return redirect('/showcase/inloggen', 'No authenticated user.');
     
-    // verify token
+    return resolve(event);
+    
+};
+
+async function verifyToken(token: string, event: any) {
     let decoded;
     try {
         decoded = await jwt.verify(token, VITE_JWT_KEY);
@@ -40,11 +57,11 @@ export const handle: Handle = async ({ event, resolve }) => {
                 const newToken = result.token;
                 decoded = await jwt.decode(newToken);
             } else {
-                return redirect('/showcase/inloggen', 'Invalid token.');
+                return null;;
             }
         } else {
             // if error, redirect to login
-            return redirect('/showcase/inloggen', 'Invalid token.');
+            return null;
         }
     }
     //cast to user
@@ -52,11 +69,11 @@ export const handle: Handle = async ({ event, resolve }) => {
         const user = {
             email: decoded.Sub,
             username: decoded.Username,
-            role: decoded.Role
+            role: decoded.Role,
+            loggedIn: true
         }
-        event.locals.user = user;
+        return user;
     } else {
-        return redirect('/showcase/inloggen', 'Invalid token.');
+        return null;;
     }
-    return resolve(event);
-};
+}

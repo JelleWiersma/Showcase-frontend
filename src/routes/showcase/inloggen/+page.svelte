@@ -1,7 +1,11 @@
 <script>
     // @ts-nocheck
  	export let form;
-    import { goto } from '$app/navigation';
+    import { user } from "$lib/store";
+    if($user){
+        $user.loggedIn = false;
+    }
+    
 
     let canSubmit = false;
     let isValidEmail = false;
