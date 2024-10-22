@@ -1,9 +1,7 @@
 import type { Handle } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import { VITE_JWT_KEY } from '$env/static/private';
-import { getTokenAndRefreshToken, refreshAccessToken } from '$lib/auth';
-import type { User } from '$lib/models/User';
-import { Console } from 'console';
+import { handleTokenRefresh } from '$lib/auth.ts';
 
 
 // custom redirect from joy of code `https://github.com/JoysOfCode/sveltekit-auth-cookies/blob/migration/src/hooks.ts`
@@ -24,7 +22,6 @@ export const handle: Handle = async ({ event, resolve }) => {
         return resolve(event);
     
     let token = event.cookies.get('token');
-    let refreshToken = event.cookies.get('refreshToken');
     const dev = import.meta.env.MODE === 'development';
     
     // if no token and route is protected, redirect to login
@@ -38,24 +35,10 @@ export const handle: Handle = async ({ event, resolve }) => {
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
             //refresh token
-            const result = await refreshAccessToken(token, refreshToken);
-            if(result){
-                ({token, refreshToken} = result);
-                event.cookies.set('token', token, {
-                    path: '/',
-                    httpOnly: true,
-                    sameSite: 'strict',
-                    secure: !dev,
-                    maxAge: 60 * 60 * 24 * 30 * 6
-                });
-                event.cookies.set('refreshToken', refreshToken, {
-                    path: '/',
-                    httpOnly: true,
-                    sameSite: 'strict',
-                    secure: !dev,
-                    maxAge: 60 * 60 * 24 * 30 * 6
-                });
-                decoded = await jwt.decode(token);
+            const result = await handleTokenRefresh(event);
+            if(result?.token){
+                const newToken = result.token;
+                decoded = await jwt.decode(newToken);
             } else {
                 return redirect('/showcase/inloggen', 'Invalid token.');
             }
@@ -73,7 +56,6 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
         event.locals.user = user;
     } else {
-        console.log('could not make user from token')
         return redirect('/showcase/inloggen', 'Invalid token.');
     }
     return resolve(event);
