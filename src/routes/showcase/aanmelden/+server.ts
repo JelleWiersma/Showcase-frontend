@@ -1,4 +1,4 @@
-import { sendRequest } from '$lib/api';
+import { sendRequest } from '$lib/server/api';
 
 export async function POST({request}) {
     // Parse the JSON data manually

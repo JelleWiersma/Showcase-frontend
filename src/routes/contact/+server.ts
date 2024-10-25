@@ -1,4 +1,4 @@
-import { sendSanitizedRequest } from '$lib/api';
+import { sendSanitizedRequest } from '$lib/server/api';
 
 export async function POST({request}) {
     // Parse the JSON data manually

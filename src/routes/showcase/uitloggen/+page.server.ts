@@ -1,4 +1,4 @@
-import { sendAuthenticatedRequest } from "$lib/api";
+import { sendAuthenticatedRequest } from "$lib/server/api";
 import { redirect } from "@sveltejs/kit";
 
 export const actions = {

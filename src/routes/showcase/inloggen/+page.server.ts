@@ -1,5 +1,5 @@
 import { redirect, fail } from '@sveltejs/kit';
-import { sendRequest } from '$lib/api';
+import { sendRequest } from '$lib/server/api';
 import { dev } from '$app/environment';
 
 export const actions = {

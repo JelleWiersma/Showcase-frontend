@@ -1,22 +1,10 @@
-import { getCookieValue } from './utils.js';
 import { sendRequest } from './api.ts';
-import type { RequestEvent } from '@sveltejs/kit';
+import type { Cookies, RequestEvent } from '@sveltejs/kit';
 
 
-// @ts-ignore
-export function getTokenAndRefreshToken() {
-    return {
-        token: getCookieValue(document.cookie, 'token'),
-        refreshToken: getCookieValue(document.cookie, 'refreshToken')
-    };
-}
-
-// @ts-ignore
-export async function refreshAccessToken(token, refreshToken) {
+export async function refreshAccessToken(token: string, refreshToken: string) {
     if(!token || !refreshToken) {
-        const tokens = getTokenAndRefreshToken();
-        token = tokens.token;
-        refreshToken = tokens.refreshToken;
+        return null;
     }
     const response = await sendRequest('token/refresh', 'POST', { Token: token, RefreshToken: refreshToken })
     if(response.ok) {
@@ -27,24 +15,24 @@ export async function refreshAccessToken(token, refreshToken) {
     }
 }
 
-// @ts-ignore
-export async function handleTokenRefresh(eventOrCookies) {
-    let token, refreshToken, cookies;
+
+export async function handleTokenRefresh(eventOrCookies: RequestEvent | Cookies) {
+    let cookies: Cookies;
     if (isRequestEvent(eventOrCookies)) {
         cookies = eventOrCookies.cookies;
     } else {
         cookies = eventOrCookies;
     }
-    token = cookies.get('token');
-    refreshToken = cookies.get('refreshToken');
+    const token = cookies.get('token');
+    const refreshToken = cookies.get('refreshToken');
 
     if (!token || !refreshToken) {
         return null;
     }
 
     const result = await refreshAccessToken(token, refreshToken);
-    const dev = process.env.NODE_ENV === 'development';
     if (result) {
+        const dev = process.env.NODE_ENV === 'development';
         cookies.set('token', result.token, {
             path: '/',
             httpOnly: true,

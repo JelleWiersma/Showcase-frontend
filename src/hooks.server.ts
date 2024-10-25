@@ -1,8 +1,7 @@
 import type { Handle } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import { VITE_JWT_KEY } from '$env/static/private';
-import { handleTokenRefresh } from '$lib/auth.ts';
-import type { User } from '$lib/models/User';
+import { handleTokenRefresh } from '$lib/server/auth';
 
 
 // custom redirect from joy of code `https://github.com/JoysOfCode/sveltekit-auth-cookies/blob/migration/src/hooks.ts`
@@ -60,17 +59,21 @@ async function verifyToken(token: string, event: any) {
                 return null;;
             }
         } else {
+            console.log(error);
             // if error, redirect to login
             return null;
         }
     }
     //cast to user
-    if(typeof decoded === 'object'){
+    if(decoded && typeof decoded === 'object'){
         const user = {
             email: decoded.Sub,
             username: decoded.Username,
             role: decoded.Role,
-            loggedIn: true
+            loggedIn: true,
+            gamesPlayed: null,
+            gamesLost: null,
+            lastPlayed: null
         }
         return user;
     } else {
