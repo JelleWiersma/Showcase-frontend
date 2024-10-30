@@ -13,7 +13,6 @@
                 method: "GET"
              }),
         });
-        console.log(response);
         if (response.ok) {
             message = "client side request is logged in";
         } else {

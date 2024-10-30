@@ -1,15 +1,13 @@
 <script>
     // @ts-nocheck
- 	export let form;
+    export let form;
     import { user } from "$lib/store";
     if($user){
         $user.loggedIn = false;
     }
-    
 
     let canSubmit = false;
     let isValidEmail = false;
-    let isValidPassword = false;
     let showFailure = false;
     let failureNotification;
     let failureMessage;
@@ -20,43 +18,25 @@
         const inputElement = event.target;
         inputElement.required = true;
         const value = inputElement.value.trim();
-        
-        // Check if the email is already filled in
-        if(form?.email){
-            isValidEmail = true;
-        }
 
         // Validate input
         if (inputElement.name === 'email') {
             isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
-        } else if (inputElement.name === 'password') {
-            isValidPassword = value.length >= 1 && value.length <= 256;
         }
         // Update submit button
-        canSubmit = isValidEmail && isValidPassword;
+        canSubmit = isValidEmail;
     }
 
     if(form?.errors){
-        // Check if the user is not allowed or requires two factor authentication
-        if (form.errors.NotAllowed) {
-            // Display a message to the user
-            failureMessage = "Je account is geblokkeerd. Neem contact op met de beheerder.";
-        } else if (form.errors.RequiresTwoFactor) {
-            // Handle two factor authentication
-            // ...
-        } else if(form.errors.TooManyAttempts) {
-                // Tell the user they have tried too many times  without revealing if the email is correct.
-                failureMessage = "Je hebt te vaak proberen in te loggen op dit mailadres. Probeer een ander account of kom later terug.";
-        } else {
-            // Display a message to the user
-            failureMessage = "Kon niet inloggen. Check je email adres en wachtwoord en probeer opnieuw.";
-        }
+        // Handle errors
+        failureMessage = "Er is een fout opgetreden. Probeer het opnieuw.";
         showFailure = true;
+        canSubmit = true;
     }
 </script>
 
 <div class="content">
-    <span class="title-text">Inloggen</span>
+    <span class="title-text">Wachtwoord Resetten</span>
     <div class="horizontal-line"></div>
     <form method="POST">
         <section class="nice-form-group input-field">
@@ -64,14 +44,10 @@
             <input type="email" id="email" name="email" placeholder="Email adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80" value={form?.email? form.email : ''}>
             <div class="validation-message">Vul een geldig email adres in</div>
         </section>
-        <section class="nice-form-group input-field">
-            <label for="password">Wachtwoord</label>
-            <input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} maxlength="256" autocomplete="current-password">
-        </section>
-        <button type="submit" disabled={!canSubmit}>Inloggen</button>
+        <button type="submit" disabled={!canSubmit}>Reset Wachtwoord</button>
     </form>
     <a href="/showcase/aanmelden">Account maken</a>
-    <a href="/showcase/wachtwoord-vergeten">Wachtwoord vergeten</a>
+    <a href="/showcase/inloggen">Inloggen</a>
 
     {#if showFailure}
         <div class="failure-message" bind:this={failureNotification}>

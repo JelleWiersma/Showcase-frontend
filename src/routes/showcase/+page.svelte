@@ -1,29 +1,38 @@
 <script>
     import Menu from "./Components/menu.svelte";
-	import { hideNavigation } from "$lib/store";
+    import { hideNavigation } from "$lib/store";
     import { onMount } from "svelte";
     import SmallScreen from "./Components/smallScreen.svelte";
     import { page } from '$app/stores';
     
-    let verify;
     let innerWidth = 0;
     let isSmallScreen = false;
-    let showEmailVerifiedMessage = false;
-    let showEmailNotVerifiedMessage = false;
+    let message = '';
+    let messageType = '';
 
     $: {
-        verify = $page.url.searchParams.get('verify');
+        const verify = $page.url.searchParams.get('verify');
+        const reset = $page.url.searchParams.get('reset');
+
         if (verify === 'success') {
-            showEmailVerifiedMessage = true;
+            message = 'Je email is geverifieerd. Je kan nu inloggen.';
+            messageType = 'confirmation';
         } else if (verify === 'failed') {
-            showEmailNotVerifiedMessage = true;
+            message = 'Je email kon niet geverifieerd worden. Probeer het later opnieuw.';
+            messageType = 'failure';
+        } else if (reset === 'success') {
+            message = 'Je wachtwoord is gereset. Je kan nu inloggen.';
+            messageType = 'confirmation';
+        } else if (reset === 'confirm') {
+            message = 'Email verstuurd. Check je email om je wachtwoord te veranderen.';
+            messageType = 'confirmation';
         } else {
-            showEmailVerifiedMessage = false;
-            showEmailNotVerifiedMessage = false;
+            message = '';
+            messageType = '';
         }
     }
 
-	onMount(() => {
+    onMount(() => {
         hideNavigation.set(false);
         isSmallScreen = innerWidth < 1200;
     });
@@ -35,15 +44,10 @@
 
 <svelte:window bind:innerWidth={innerWidth}></svelte:window>
 
-{#if showEmailVerifiedMessage}
-    <div class="confirmation-message">
-        Je email is geverifieerd. Je kan nu inloggen.
-        <button class="close-button" on:click={() => { showEmailVerifiedMessage = false }}>X</button>
-    </div>
-{:else if showEmailNotVerifiedMessage}
-    <div class="failure-message">
-        Je email kon niet geverifieerd worden. Probeer het later opnieuw.
-        <button class="close-button" on:click={() => { showEmailNotVerifiedMessage = false }}>X</button>
+{#if message}
+    <div class={messageType === 'confirmation' ? 'confirmation-message' : 'failure-message'}>
+        {message}
+        <button class="close-button" on:click={() => { message = ''; messageType = ''; }}>X</button>
     </div>
 {/if}
 
