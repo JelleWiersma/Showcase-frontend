@@ -3,18 +3,28 @@
 
     import { enhance } from '$app/forms';
 	import DOMPurify from 'dompurify';
+	import { onMount, afterUpdate } from 'svelte';
 
+	// Form variables
 	let canSubmit = false;
 	let isValidName = false;
 	let isValidEmail = false;
 	let isValidPassword = false;
+	let recaptcha;
+	let token;
+	let rerenderCaptcha = false;
+	let isValidRecaptcha = false;
+	const recaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_RECAPTCHA_SITE_KEY : import.meta.env.VITE_RECAPTCHA_TEST_KEY;
+	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+	
+	//Page variables
 	let showSpinner = false;
 	let showConfirmation = false;
 	let confirmationMessage;
 	let showFailure = false;
 	let failureMessage;
-	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+	
 
 	function validateInput(event) {
 		// prepare input
@@ -28,11 +38,68 @@
 		} else if (inputElement.name === 'email') {
 			isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
 		} else if (inputElement.name === 'password') {
-			isValidPassword = value.length >= 1 && value.length <= 256 && passwordReg.test(value);
+			isValidPassword = value.length >= 8 && value.length <= 256 && passwordReg.test(value);
 		}
 		// Update submit button
-		canSubmit = isValidName && isValidEmail && isValidPassword;
+		canSubmit = isValidName && isValidEmail && isValidPassword && isValidRecaptcha;
 	}
+
+	onMount(async () => {
+		if (typeof window !== 'undefined') {
+			// render recaptcha when the scipt is loaded
+			window.recaptchaCallback = function() {
+				recaptcha = grecaptcha.render('recaptcha', {
+					'sitekey': recaptchaSiteKey,
+					'callback': 'handleCaptcha',
+					'expired-callback': 'handleCaptchaExpired'
+				});
+			};
+			
+			// Callback function for successfull recaptcha
+			window.handleCaptcha = function(response) {
+				token = response;
+				isValidRecaptcha = true;
+				canSubmit = isValidName && isValidEmail && isValidRecaptcha && isValidPassword;
+			};
+
+			// Callback function for expired recaptcha
+			window.handleCaptchaExpired = function() {
+				isValidRecaptcha = false;
+				canSubmit = false;
+			};
+
+			// Load recaptcha script
+			if(document.querySelector('script[src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit"]') === null){
+				const script = document.createElement('script');
+				script.src = 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit';
+				script.async = true;
+				script.defer = true;
+				document.body.appendChild(script);
+			} else {
+				//render recaptcha if the script is already loaded
+				recaptcha = grecaptcha.render('recaptcha', {
+					'sitekey': recaptchaSiteKey,
+					'callback': 'handleCaptcha',
+					'expired-callback': 'handleCaptchaExpired'
+				});
+			}
+			
+		}
+	});
+
+	afterUpdate(() => {
+		// Rerender recaptcha when the form has been submitted
+		if (typeof window !== 'undefined') {
+			if (rerenderCaptcha) {
+				grecaptcha.render('recaptcha', {
+					'sitekey': recaptchaSiteKey,
+					'callback': 'handleCaptcha',
+					'expired-callback': 'handleCaptchaExpired'
+				});
+				rerenderCaptcha = false;
+			}
+		}
+	});
 
 	async function onSubmit(event) {
 		event.preventDefault();
@@ -44,7 +111,8 @@
 		const data = {
 			Username: DOMPurify.sanitize(form.name.value),
 			Email: DOMPurify.sanitize(form.email.value),
-			Password: form.password.value
+			Password: form.password.value,
+			Token: token
 		};
 	    // Send a POST request
 		const response = await fetch('/showcase/aanmelden', {
@@ -71,6 +139,7 @@
 		isValidName = false;
 		isValidEmail = false;
 		isValidPassword = false;
+		isValidRecaptcha = false;
 		showSpinner = false;
 	}
 </script>
@@ -101,6 +170,7 @@
 				<input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} pattern="{passwordReg.source}" maxlength="256" autocomplete="current-password">
 				<div class="validation-message">Wachtwoord moet tenminste 8 karakters, één hoofdletter, één kleine letter en één cijfer bevatten</div>
 			</section>
+			<div class="g-recaptcha" id="recaptcha"></div>
 			<button type="submit" disabled={!canSubmit}>Registeren</button>
 		</form>
 
@@ -111,7 +181,7 @@
 			</div>
 		{:else if showFailure}
 			<div class="failure-message" bind:this={failureMessage}>
-				Je account kon niet aangemaakt worden.
+				Je account kon niet aangemaakt worden. Probeer het later opnieuw.
 				<button class="close-button" on:click={() => { failureMessage.style.display = 'none'; showFailure = false }}>X</button>
 			</div> 
 		{/if}

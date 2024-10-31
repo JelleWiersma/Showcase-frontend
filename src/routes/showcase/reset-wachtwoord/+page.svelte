@@ -11,7 +11,11 @@
     let showFailure = false;
     let failureMessage = '';
     let canSubmit = false;
-    let validation;
+    let newPassValidation;
+    let confPassValidation;
+    let isValidPassword = false;
+    const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
 
     onMount(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -26,15 +30,16 @@
     function validateInput(event) {
         // Check if passwords match
         const passwordsMatch = newPassword === confirmPassword;
+        isValidPassword = newPassword.length >= 8 && newPassword.length <= 256 && passwordReg.test(newPassword);
 
         // Show validation message
-        if (passwordsMatch) {
-            validation.classList.remove('show-validation');
-        } else {
-            validation.classList.add('show-validation');
+        if(event.target.name === 'newPassword' && !isValidPassword) {
+            newPassValidation.style.display = isValidPassword ? 'none' : 'block';
+        } else if(event.target.name === 'confirmPassword') {
+            confPassValidation.style.display = passwordsMatch ? 'none' : 'block';
         }
         // Update submit button
-        canSubmit = passwordsMatch;
+        canSubmit = passwordsMatch && isValidPassword;
     }
     
     async function handleSubmit(event) {
@@ -63,12 +68,13 @@
     <form on:submit={handleSubmit}>
         <section class="nice-form-group input-field">
             <label for="newPassword">Nieuw wachtwoord</label>
-            <input type="password" id="newPassword" name="newPassword" bind:value={newPassword} on:input={validateInput} required>
+            <input type="password" id="newPassword" name="newPassword" bind:value={newPassword} on:input={validateInput} maxlength="256" required>
+            <div class="validation-message" bind:this={newPassValidation}>Wachtwoord moet tenminste 8 karakters, één hoofdletter, één kleine letter en één cijfer bevatten</div>
         </section>
         <section class="nice-form-group input-field">
             <label for="confirmPassword">Wachtwoord herhalen</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" bind:value={confirmPassword} on:input={validateInput} required>
-            <div class="validation-message" bind:this={validation}>Wachtwoorden moeten overeenkomen</div>
+            <input type="password" id="confirmPassword" name="confirmPassword" bind:value={confirmPassword} on:input={validateInput} maxlength="256" required>
+            <div class="validation-message" bind:this={confPassValidation}>Wachtwoorden moeten overeenkomen</div>
         </section>
         <button type="submit" disabled={!canSubmit}>Bevestigen</button>
     </form>
@@ -101,9 +107,5 @@
         display: none;
         color: var(--color-error);
         margin-top: 2px;
-    }
-
-    .show-validation {
-        display: block;
     }
 </style>
