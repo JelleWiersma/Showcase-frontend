@@ -30,7 +30,7 @@
         if (inputElement.name === 'email') {
             isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
         } else if (inputElement.name === 'password') {
-            isValidPassword = value.length >= 1 && value.length <= 256;
+            isValidPassword = value.length >= 12 && value.length <= 126;
         }
         // Update submit button
         canSubmit = isValidEmail && isValidPassword;
@@ -66,7 +66,7 @@
         </section>
         <section class="nice-form-group input-field">
             <label for="password">Wachtwoord</label>
-            <input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} maxlength="256" autocomplete="current-password">
+            <input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} maxlength="128" autocomplete="current-password">
         </section>
         <button type="submit" disabled={!canSubmit}>Inloggen</button>
     </form>

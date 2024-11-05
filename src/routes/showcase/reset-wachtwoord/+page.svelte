@@ -30,7 +30,7 @@
     function validateInput(event) {
         // Check if passwords match
         const passwordsMatch = newPassword === confirmPassword;
-        isValidPassword = newPassword.length >= 8 && newPassword.length <= 256 && passwordReg.test(newPassword);
+        isValidPassword = newPassword.length >= 12 && newPassword.length <= 128 && passwordReg.test(newPassword);
 
         // Show validation message
         if(event.target.name === 'newPassword' && !isValidPassword) {
@@ -68,12 +68,12 @@
     <form on:submit={handleSubmit}>
         <section class="nice-form-group input-field">
             <label for="newPassword">Nieuw wachtwoord</label>
-            <input type="password" id="newPassword" name="newPassword" bind:value={newPassword} on:input={validateInput} maxlength="256" required>
-            <div class="validation-message" bind:this={newPassValidation}>Wachtwoord moet tenminste 8 karakters, één hoofdletter, één kleine letter en één cijfer bevatten</div>
+            <input type="password" id="newPassword" name="newPassword" bind:value={newPassword} on:input={validateInput} maxlength="128" required>
+            <div class="validation-message" bind:this={newPassValidation}>Wachtwoord moet tenminste 12 karakters, één hoofdletter, één kleine letter en één cijfer bevatten</div>
         </section>
         <section class="nice-form-group input-field">
             <label for="confirmPassword">Wachtwoord herhalen</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" bind:value={confirmPassword} on:input={validateInput} maxlength="256" required>
+            <input type="password" id="confirmPassword" name="confirmPassword" bind:value={confirmPassword} on:input={validateInput} maxlength="128" required>
             <div class="validation-message" bind:this={confPassValidation}>Wachtwoorden moeten overeenkomen</div>
         </section>
         <button type="submit" disabled={!canSubmit}>Bevestigen</button>

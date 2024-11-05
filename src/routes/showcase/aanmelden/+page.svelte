@@ -38,7 +38,7 @@
 		} else if (inputElement.name === 'email') {
 			isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
 		} else if (inputElement.name === 'password') {
-			isValidPassword = value.length >= 8 && value.length <= 256 && passwordReg.test(value);
+			isValidPassword = value.length >= 12 && value.length <= 128 && passwordReg.test(value);
 		}
 		// Update submit button
 		canSubmit = isValidName && isValidEmail && isValidPassword && isValidRecaptcha;
@@ -167,8 +167,8 @@
 			</section>
 			<section class="nice-form-group input-field">
 				<label for="password">Wachtwoord</label>
-				<input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} pattern="{passwordReg.source}" maxlength="256" autocomplete="current-password">
-				<div class="validation-message">Wachtwoord moet tenminste 8 karakters, één hoofdletter, één kleine letter en één cijfer bevatten</div>
+				<input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} pattern="{passwordReg.source}" maxlength="128" autocomplete="current-password">
+				<div class="validation-message">Wachtwoord moet tenminste 12 karakters, één hoofdletter, één kleine letter en één cijfer bevatten</div>
 			</section>
 			<div class="g-recaptcha" id="recaptcha"></div>
 			<button type="submit" disabled={!canSubmit}>Registeren</button>
