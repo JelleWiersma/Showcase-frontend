@@ -144,6 +144,10 @@
 	}
 </script>
 
+<svelte:head>
+    <title>Aanmelden</title>
+</svelte:head>
+
 <div class="content">
 	{#if showSpinner}
 		<div class="spinner"></div>

@@ -55,6 +55,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>Inloggen</title>
+</svelte:head>
+
 <div class="content">
     <span class="title-text">Inloggen</span>
     <div class="horizontal-line"></div>

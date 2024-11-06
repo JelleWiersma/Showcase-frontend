@@ -62,6 +62,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>Wachtwoord resetten</title>
+</svelte:head>
+
 <div class="content">
     <span class="title-text">Wachtwoord Resetten</span>
     <div class="horizontal-line"></div>
