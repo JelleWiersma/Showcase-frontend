@@ -2,6 +2,7 @@
 // @ts-nocheck
 
     import { enhance } from '$app/forms';
+    import { sendRequest } from '$lib/utils';
 	import DOMPurify from 'dompurify';
 	import { onMount, afterUpdate } from 'svelte';
 
@@ -16,7 +17,7 @@
 	let isValidRecaptcha = false;
 	const recaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_RECAPTCHA_SITE_KEY : import.meta.env.VITE_RECAPTCHA_TEST_KEY;
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+	const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{12,}$/;
 	
 	//Page variables
 	let showSpinner = false;
@@ -87,20 +88,6 @@
 		}
 	});
 
-	afterUpdate(() => {
-		// Rerender recaptcha when the form has been submitted
-		if (typeof window !== 'undefined') {
-			if (rerenderCaptcha) {
-				grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-				rerenderCaptcha = false;
-			}
-		}
-	});
-
 	async function onSubmit(event) {
 		event.preventDefault();
         showSpinner = true;
@@ -109,19 +96,15 @@
 		
 		// Prepare data
 		const data = {
-			Username: DOMPurify.sanitize(form.name.value),
 			Email: DOMPurify.sanitize(form.email.value),
+			Username: DOMPurify.sanitize(form.name.value),
 			Password: form.password.value,
-			Token: token
+			RecaptchaToken: token
 		};
+
+		console.log(data);
 	    // Send a POST request
-		const response = await fetch('/showcase/aanmelden', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(data)
-    	});
+		const response = await sendRequest('/account/register', "POST", data);
 		
 		if (response.ok) {
 			showFailure = false;

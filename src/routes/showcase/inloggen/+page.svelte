@@ -13,6 +13,7 @@
     let showFailure = false;
     let failureNotification;
     let failureMessage;
+    let showTwoFactor = false;
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     function validateInput(event) {
@@ -30,28 +31,27 @@
         if (inputElement.name === 'email') {
             isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
         } else if (inputElement.name === 'password') {
-            isValidPassword = value.length >= 12 && value.length <= 126;
+            isValidPassword = value.length >= 1 && value.length <= 126;
         }
         // Update submit button
         canSubmit = isValidEmail && isValidPassword;
     }
 
-    if(form?.errors){
+    if(form){
         // Check if the user is not allowed or requires two factor authentication
-        if (form.errors.NotAllowed) {
-            // Display a message to the user
-            failureMessage = "Je account is geblokkeerd. Neem contact op met de beheerder.";
-        } else if (form.errors.RequiresTwoFactor) {
-            // Handle two factor authentication
-            // ...
-        } else if(form.errors.TooManyAttempts) {
-                // Tell the user they have tried too many times  without revealing if the email is correct.
-                failureMessage = "Je hebt te vaak proberen in te loggen op dit mailadres. Probeer een ander account of kom later terug.";
+        if (form.TwoFactorRequired) {
+            showTwoFactor = true;
+            canSubmit = false;
+        } else if(form.TooManyAttempts) {
+            // Tell the user they have tried too many times  without revealing if the email is correct.
+            failureMessage = "Je hebt te vaak proberen in te loggen op dit mailadres. Probeer het over 5 minuten nog eens.";
+            showFailure = true;
         } else {
             // Display a message to the user
             failureMessage = "Kon niet inloggen. Check je email adres en wachtwoord en probeer opnieuw.";
+            showFailure = true;
         }
-        showFailure = true;
+        
     }
 </script>
 
@@ -70,8 +70,26 @@
         </section>
         <section class="nice-form-group input-field">
             <label for="password">Wachtwoord</label>
-            <input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} maxlength="128" autocomplete="current-password">
+            <input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} maxlength="128" autocomplete="current-password" value={form?.password? form.password : ''}>
         </section>
+        <section class="nice-form-group input-field" style="flex-direction: row;">
+            <input type="checkbox" id="show-password" onclick="document.getElementById('password').type = this.checked ? 'text' : 'password'"><label for="show-password">Wachtwoord tonen</label>
+        </section>
+        <section class="nice-form-group input-field" style="flex-direction: row;">
+            <input type="checkbox" id="rememberMe" name="rememberMe" value={form?.rememberMe? form.rememberMe.toString() : "false"}><label for="rememberMe">Deze computer onthouden</label>
+        </section>
+        {#if showTwoFactor}
+            <div class="mfa-popup">
+                <div class="mfa-div">
+                    <section class="nice-form-group input-field">
+                        <h3 style="margin: 0">Two factor authenticatie</h3>
+                        <p style="white-space: normal">Voer de code in die je hebt ontvangen in je mailbox.</p>
+                        <input type="text" id="twoFactorCode" name="twoFactorCode" placeholder="Inlogcode" on:input={() => canSubmit = true} maxlength="6">
+                        <button type="submit" disabled={!canSubmit}>Inloggen</button>
+                    </section>
+                </div>
+            </div>
+        {/if}
         <button type="submit" disabled={!canSubmit}>Inloggen</button>
     </form>
     <a href="/showcase/aanmelden">Account maken</a>
@@ -111,4 +129,29 @@
     input {
         box-sizing: border-box;
     }
+    
+    .mfa-div {
+        background-color: var(--color-bg-0);
+        border-radius: 5px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .mfa-popup {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    
 </style>

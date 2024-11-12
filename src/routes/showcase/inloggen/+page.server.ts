@@ -5,25 +5,33 @@ import { dev } from '$app/environment';
 export const actions = {
     default: async ({ request, cookies }) => {
         const form = await request.formData();
-        const email = form.get('email');
-        const password = form.get('password');
+
+        const requestBody = {
+            Email: form.get('email'),
+            Password: form.get('password'),
+            RememberMe: form.get('rememberMe') === 'on',
+            MfaCode: form.get('twoFactorCode')? form.get('twoFactorCode'): null
+        };
+        console.log(requestBody);
 
         // Check if the email and password are provided
-        if (!email || !password) fail(400, { errors: { BadRequest: true}});
-        if (typeof email !== 'string' || typeof password !== 'string')
-            return fail(400, { errors: { BadRequest: true}});
+        if (!requestBody.Email || !requestBody.Password || typeof requestBody.Email !== 'string' || typeof requestBody.Password !== 'string') fail(400, { errors: { BadRequest: true}});
 
         // Send the request to the server API
-        const response = await sendRequest('account/login', 'POST', { email, password });
+        const response = await sendRequest(requestBody.MfaCode? 'account/mfa-login': 'account/login' , 'POST', requestBody);
+        
         let responseJson = await response.json();
         
         // Check if the response is ok
         if (!response.ok){
+            if(responseJson.requiresTwoFactor){
+                return fail(401, { email: requestBody.Email, password: requestBody.Password, rememberMe: requestBody.RememberMe, TwoFactorRequired: true});
+            }
             const lastEmail = cookies.get('lastEmail');
             let attempts = cookies.get('attempts');
 
             if(lastEmail){
-                if(lastEmail === email){
+                if(lastEmail === requestBody.Email){
                     if(attempts){
                         cookies.set('attempts', String(parseInt(attempts) + 1), {
                             path: '/',
@@ -40,8 +48,9 @@ export const actions = {
                             maxAge: 60 * 5});
                     }
                 }
-            } 
-            cookies.set('lastEmail', email, {
+            }
+            //@ts-ignore
+            cookies.set('lastEmail', requestBody.Email, {
                 path: '/', 
                 httpOnly: false, 
                 sameSite: 'strict', 
@@ -50,9 +59,9 @@ export const actions = {
             
             attempts = cookies.get('attempts');
             if(attempts && parseInt(attempts) >= 5){
-                return fail(400, { email: email, errors: { TooManyAttempts: true }});
+                return fail(401, { email: requestBody.Email, TooManyAttempts: true });
             }
-            return fail(400, { email: email, errors: responseJson.errors});
+            return fail(401, { email: requestBody.Email});
         } 
 
         cookies.set('token', responseJson.token, {
