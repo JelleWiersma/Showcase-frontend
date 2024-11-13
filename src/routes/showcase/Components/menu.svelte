@@ -29,6 +29,9 @@
     {#if $user && $user.loggedIn}
         <button class="menu-button" on:click={() => goto('/showcase/spel')}>Spelen</button>
         <button class="menu-button" on:click={handleLogout}>Uitloggen</button>
+        {#if $user && $user.admin}
+            <button class="menu-button" on:click={() => goto('/showcase/admin')}>Admin Dashboard</button>
+        {/if}
     {:else}
         <button class="menu-button" on:click={() => goto('/showcase/inloggen')}>Inloggen</button>
         <button class="menu-button" on:click={() => goto('/showcase/aanmelden')}>Account maken</button>

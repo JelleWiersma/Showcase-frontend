@@ -2,9 +2,7 @@
     // @ts-nocheck
  	export let form;
     import { user } from "$lib/store";
-    if($user){
-        $user.loggedIn = false;
-    }
+    import { goto } from "$app/navigation";
     
 
     let canSubmit = false;

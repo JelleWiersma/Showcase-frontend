@@ -1,7 +1,7 @@
 export interface User {
     email: string;
     username: string;
-    role: string;
+    admin: boolean;
     loggedIn: boolean | null;
     gamesPlayed: number | null;
     gamesLost: number | null;

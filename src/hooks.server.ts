@@ -16,6 +16,10 @@ const protectedRoutes: string[] = [
     '/showcase/lobby'
 ];
 
+const adminRoutes: string[] = [
+    '/showcase/admin'
+];
+
 export const handle: Handle = async ({ event, resolve }) => {
     // Determine if user is logged in
     let token = event.cookies.get('token');
@@ -32,13 +36,17 @@ export const handle: Handle = async ({ event, resolve }) => {
     };
 
     // if route is not protected, resolve
-    if(!protectedRoutes.includes(event.url.pathname))
+    if(!protectedRoutes.includes(event.url.pathname) && !adminRoutes.includes(event.url.pathname))
         return resolve(event);
     
 
     // if not logged in and route is protected, redirect to login
     if (!event.locals.user || !event.locals.user.loggedIn)
         return redirect('/showcase/inloggen', 'No authenticated user.');
+
+    // if route is admin and user is not admin, redirect to lobby
+    if(adminRoutes.includes(event.url.pathname) && !event.locals.user.admin)
+        return redirect('/showcase');
     
     return resolve(event);
     
@@ -69,7 +77,7 @@ async function verifyToken(token: string, event: any) {
         const user = {
             email: decoded.Sub,
             username: decoded.Username,
-            role: decoded.Role,
+            admin: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ==='Admin',
             loggedIn: true,
             gamesPlayed: null,
             gamesLost: null,

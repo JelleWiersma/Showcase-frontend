@@ -102,7 +102,6 @@
 			RecaptchaToken: token
 		};
 
-		console.log(data);
 	    // Send a POST request
 		const response = await sendRequest('/account/register', "POST", data);
 		

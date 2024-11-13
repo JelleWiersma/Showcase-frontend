@@ -12,7 +12,6 @@ export const actions = {
             RememberMe: form.get('rememberMe') === 'on',
             MfaCode: form.get('twoFactorCode')? form.get('twoFactorCode'): null
         };
-        console.log(requestBody);
 
         // Check if the email and password are provided
         if (!requestBody.Email || !requestBody.Password || typeof requestBody.Email !== 'string' || typeof requestBody.Password !== 'string') fail(400, { errors: { BadRequest: true}});
