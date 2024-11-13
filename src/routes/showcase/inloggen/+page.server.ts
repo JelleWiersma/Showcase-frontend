@@ -6,7 +6,7 @@ export const actions = {
     default: async ({ request, cookies }) => {
         const form = await request.formData();
 
-        const requestBody = {
+        let requestBody = {
             Email: form.get('email'),
             Password: form.get('password'),
             RememberMe: form.get('rememberMe') === 'on',
@@ -14,7 +14,7 @@ export const actions = {
         };
 
         // Check if the email and password are provided
-        if (!requestBody.Email || !requestBody.Password || typeof requestBody.Email !== 'string' || typeof requestBody.Password !== 'string') fail(400, { errors: { BadRequest: true}});
+        if (!requestBody.Email || (!requestBody.Password && !requestBody.MfaCode) || typeof requestBody.Email !== 'string' || typeof requestBody.Password !== 'string') fail(400, { errors: { BadRequest: true}});
 
         // Send the request to the server API
         const response = await sendRequest(requestBody.MfaCode? 'account/mfa-login': 'account/login' , 'POST', requestBody);
@@ -24,7 +24,7 @@ export const actions = {
         // Check if the response is ok
         if (!response.ok){
             if(responseJson.requiresTwoFactor){
-                return fail(401, { email: requestBody.Email, password: requestBody.Password, rememberMe: requestBody.RememberMe, TwoFactorRequired: true});
+                return fail(401, { email: requestBody.Email, rememberMe: requestBody.RememberMe, TwoFactorRequired: true});
             }
             const lastEmail = cookies.get('lastEmail');
             let attempts = cookies.get('attempts');

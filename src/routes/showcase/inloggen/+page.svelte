@@ -68,7 +68,7 @@
         </section>
         <section class="nice-form-group input-field">
             <label for="password">Wachtwoord</label>
-            <input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} maxlength="128" autocomplete="current-password" value={form?.password? form.password : ''}>
+            <input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} maxlength="128" autocomplete="current-password">
         </section>
         <section class="nice-form-group input-field" style="flex-direction: row;">
             <input type="checkbox" id="show-password" onclick="document.getElementById('password').type = this.checked ? 'text' : 'password'"><label for="show-password">Wachtwoord tonen</label>
