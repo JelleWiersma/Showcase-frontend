@@ -47,7 +47,7 @@
 {#if message}
     <div class={messageType === 'confirmation' ? 'confirmation-message' : 'failure-message'}>
         {message}
-        <button class="close-button" on:click={() => { message = ''; messageType = ''; }}>X</button>
+        <button on:click={() => { message = ''; messageType = ''; }}>X</button>
     </div>
 {/if}
 

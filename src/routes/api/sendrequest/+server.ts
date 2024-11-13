@@ -7,7 +7,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
         if (!requestData || !requestData.method || !requestData.endpoint) {
             return new Response(JSON.stringify({ error: 'Bad Request: Missing method or endpoint.' }), { status: 400 });
         }
-        const response = await sendAuthenticatedRequest(requestData.endpoint, requestData.method, requestData.method === 'GET' ? null : requestData.data, cookies);
+        const response = await sendAuthenticatedRequest(requestData.endpoint, requestData.method, requestData.method === 'GET' || 'DELETE' ? null : requestData.data, cookies);
         const responseBody = await response.text();
         const newResponse = new Response(responseBody, {
             status: response.status,

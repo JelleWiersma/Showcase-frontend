@@ -28,3 +28,24 @@ export async function sendRequest(endpoint, method = 'GET', body) {
     // Parse and return the response
     return response;
 }
+
+// Send a request to the server API with the user's JWT token
+export async function sendAuthenticatedRequest(requestEndpoint, requestMethod = 'GET', requestBody) {
+
+    if (requestEndpoint.startsWith('/')) {
+        requestEndpoint = requestEndpoint.slice(1);
+    }
+
+    const response = await fetch("/api/sendrequest", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+            endpoint: requestEndpoint,
+            method: requestMethod,
+            body: requestBody
+        }),
+    });
+    return response;
+}
