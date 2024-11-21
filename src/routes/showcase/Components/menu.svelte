@@ -35,7 +35,6 @@
             body: new URLSearchParams()
         });
         if(response.ok) {
-            document.cookie = 'user=; Max-Age=0; path=/';
             location.reload();
         }
     }
