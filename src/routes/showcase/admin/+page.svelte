@@ -3,6 +3,7 @@
     import { sendAuthenticatedRequest } from '$lib/utils';
     export let data;
     let players = data.players;
+    let currentPlayer = data.currentPlayer;
 
     async function removeButton(player) {
         if (confirm(`Weet je zeker dat je ${player.username} wil verwijderen?`)) {
@@ -44,7 +45,7 @@
         <tbody>
             {#each players as player}
                 <tr>
-                    <td><button class='remove-button' on:click={() => {removeButton(player)}}>X</button></td>
+                    <td>{#if player.id != currentPlayer.id}<button class='remove-button' on:click={() => {removeButton(player)}}>X</button>{/if}</td>
                     <td>{player.email}</td>
                     <td>{player.username}</td>
                     <td>{player.admin? 'Admin' : 'Player'}</td>
