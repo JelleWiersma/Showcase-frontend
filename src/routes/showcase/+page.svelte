@@ -10,6 +10,8 @@
     let message = '';
     let messageType = '';
 
+    export let data;
+
     $: {
         const verify = $page.url.searchParams.get('verify');
         const reset = $page.url.searchParams.get('reset');
@@ -52,7 +54,7 @@
 {/if}
 
 {#if !isSmallScreen}
-    <Menu></Menu>
+    <Menu {data}></Menu>
 {:else}
     <SmallScreen></SmallScreen>
 {/if}

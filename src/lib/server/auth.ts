@@ -1,4 +1,5 @@
-import { sendRequest } from './api.ts';
+import type { User } from '$lib/models/User.ts';
+import { sendAuthenticatedRequest, sendRequest } from './api.ts';
 import type { Cookies, RequestEvent } from '@sveltejs/kit';
 
 
@@ -54,4 +55,34 @@ export async function handleTokenRefresh(eventOrCookies: RequestEvent | Cookies)
 
 function isRequestEvent(obj: any): obj is RequestEvent {
     return obj && typeof obj.cookies === 'object' && typeof obj.cookies.get === 'function';
+}
+
+export async function getUser(cookies: any){
+    const response = await sendAuthenticatedRequest('player', 'GET', {}, cookies);
+    if(!response.ok){
+        return null;
+    }
+    const decoded = await response.json();
+    const user: User = {
+        id : decoded.id,
+        email: decoded.email,
+        username: decoded.username,
+        admin: decoded.admin,
+        loggedIn: true,
+        gamesPlayed: decoded.gamesPlayed,
+        gamesLost: decoded.gamesLost,
+        lastPlayed: decoded.lastPlayed
+    }
+    return user;
+}
+
+export async function saveUser(user: User | null, cookies: any){
+    if(!user) return;
+    cookies.set('user', JSON.stringify(user), {
+        'path': '/',
+        'httpOnly': false,
+        'sameSite': 'strict',
+        'secure': import.meta.env.MODE === 'production',
+        'maxAge': 60 * 60 * 24 * 30
+    });
 }

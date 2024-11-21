@@ -2,6 +2,8 @@ import type { Handle } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import { VITE_JWT_KEY } from '$env/static/private';
 import { handleTokenRefresh } from '$lib/server/auth';
+import type { User } from '$lib/models/User';
+import { getUser, saveUser } from '$lib/server/auth';
 
 
 // custom redirect from joy of code `https://github.com/JoysOfCode/sveltekit-auth-cookies/blob/migration/src/hooks.ts`
@@ -23,17 +25,32 @@ const adminRoutes: string[] = [
 export const handle: Handle = async ({ event, resolve }) => {
     // Determine if user is logged in
     let token = event.cookies.get('token');
-    if(!token && event.locals.user) event.locals.user.loggedIn = false;
+    const userCookie = event.cookies.get('user');
+    let user: User | null = null;
+    if(userCookie){
+        user = JSON.parse(userCookie);
+    }
+
+    if(!token && user){
+        user.loggedIn = false;   
+    }
 
     if(token) {
-        const user = await verifyToken(token, event);
-        if(user){
-            event.locals.user = user;
+        const verified = await verifyToken(token, event);
+        if(verified){
+            if(user){
+                user.loggedIn = true;
+            } else {
+                user = await getUser(event.cookies);
+            }
         } else {
             event.cookies.delete('token', { path: '/' });
             event.cookies.delete('refreshToken', { path: '/' });
+            event.cookies.delete('user', { path: '/' });
         } 
     };
+
+    await saveUser(user, event.cookies);
 
     // if route is not protected, resolve
     if(!protectedRoutes.includes(event.url.pathname) && !adminRoutes.includes(event.url.pathname))
@@ -41,11 +58,11 @@ export const handle: Handle = async ({ event, resolve }) => {
     
 
     // if not logged in and route is protected, redirect to login
-    if (!event.locals.user || !event.locals.user.loggedIn)
+    if (!user || !user.loggedIn)
         return redirect('/showcase/inloggen', 'No authenticated user.');
 
     // if route is admin and user is not admin, redirect to lobby
-    if(adminRoutes.includes(event.url.pathname) && !event.locals.user.admin)
+    if(adminRoutes.includes(event.url.pathname) && !user.admin)
         return redirect('/showcase');
     
     return resolve(event);
@@ -64,28 +81,16 @@ async function verifyToken(token: string, event: any) {
                 const newToken = result.token;
                 decoded = await jwt.decode(newToken);
             } else {
-                return null;;
+                return false;
             }
         } else {
             console.log(error);
-            // if error, redirect to login
-            return null;
+            return false;
         }
     }
-    //cast to user
-    if(decoded && typeof decoded === 'object'){
-        const user = {
-            id : decoded.jti!,
-            email: decoded.Sub,
-            username: decoded.Username,
-            admin: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ==='Admin',
-            loggedIn: true,
-            gamesPlayed: null,
-            gamesLost: null,
-            lastPlayed: null
-        }
-        return user;
-    } else {
-        return null;;
+    if(decoded){
+        return true;
     }
+    
 }
+

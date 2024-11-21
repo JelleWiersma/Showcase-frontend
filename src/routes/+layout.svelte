@@ -3,10 +3,7 @@
 	import Header from './Header.svelte';
 	import "../../node_modules/nice-forms\.css/dist/nice-forms.css";
 	import './styles.css';
-	import { user } from "$lib/store";
 	export let data;
-	
-	$: user.set(data.user);
 
 </script>
 
