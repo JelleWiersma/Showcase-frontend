@@ -64,14 +64,14 @@ export async function getUser(cookies: any){
     }
     const decoded = await response.json();
     const user: User = {
-        id : decoded.id,
-        email: decoded.email,
-        username: decoded.username,
-        admin: decoded.admin,
-        loggedIn: true,
-        gamesPlayed: decoded.gamesPlayed,
-        gamesLost: decoded.gamesLost,
-        lastPlayed: decoded.lastPlayed
+        Id : decoded.id,
+        Email: decoded.email,
+        Username: decoded.username,
+        Admin: decoded.admin,
+        LoggedIn: true,
+        GamesPlayed: decoded.gamesPlayed,
+        GamesLost: decoded.gamesLost,
+        LastPlayed: decoded.lastPlayed
     }
     return user;
 }

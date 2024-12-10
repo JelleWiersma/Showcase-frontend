@@ -32,14 +32,14 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
 
     if(!token && user){
-        user.loggedIn = false;   
+        user.LoggedIn = false;   
     }
 
     if(token) {
         const verified = await verifyToken(token, event);
         if(verified){
             if(user){
-                user.loggedIn = true;
+                user.LoggedIn = true;
             } else {
                 user = await getUser(event.cookies);
             }
@@ -58,11 +58,11 @@ export const handle: Handle = async ({ event, resolve }) => {
     
 
     // if not logged in and route is protected, redirect to login
-    if (!user || !user.loggedIn)
+    if (!user || !user.LoggedIn)
         return redirect('/showcase/inloggen', 'No authenticated user.');
 
     // if route is admin and user is not admin, redirect to lobby
-    if(adminRoutes.includes(event.url.pathname) && !user.admin)
+    if(adminRoutes.includes(event.url.pathname) && !user.Admin)
         return redirect('/showcase');
     
     return resolve(event);

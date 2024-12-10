@@ -17,12 +17,12 @@
 
     export let data;
 
-    if(data && data.user && data.user.loggedIn) {
-        winRate = data.user.gamesPlayed > 0? Math.round(((data.user.gamesPlayed - data.user.gamesLost) / data.user.gamesPlayed) * 100) : 0;
-        lastPlayed = data.user.lastPlayed? new Date(data.user.lastPlayed).toLocaleString() : '';
-        gamesPlayed = data.user.gamesPlayed? data.user.gamesPlayed : 0;
-        gamesLost = data.user.gamesLost? data.user.gamesLost : 0;
-        gamesWon = data.user.gamesPlayed - data.user.gamesLost;
+    if(data && data.user && data.user.LoggedIn) {
+        winRate = data.user.GamesPlayed > 0? Math.round(((data.user.GamesPlayed - data.user.GamesLost) / data.user.GamesPlayed) * 100) : 0;
+        lastPlayed = data.user.LastPlayed? new Date(data.user.LastPlayed).toLocaleString() : '';
+        gamesPlayed = data.user.GamesPlayed? data.user.GamesPlayed : 0;
+        gamesLost = data.user.GamesLost? data.user.GamesLost : 0;
+        gamesWon = data.user.GamesPlayed - data.user.GamesLost;
         loggedIn = true;
     }
 
@@ -47,7 +47,7 @@
     {#if loggedIn}
         <div class="player-stats">
             <div class="stats-header">
-                <span class="subtitle">{data.user.username}</span>
+                <span class="subtitle">{data.user.Username}</span>
             </div>
             <div class="stats-grid">
                 <div class="stat-item">
