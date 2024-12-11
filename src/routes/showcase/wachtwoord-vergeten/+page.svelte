@@ -6,7 +6,7 @@
     import { sendRequest } from "$lib/utils";
 
     if($user){
-        $user.loggedIn = false;
+        $user.LoggedIn = false;
     }
 
     let canSubmit = false;
