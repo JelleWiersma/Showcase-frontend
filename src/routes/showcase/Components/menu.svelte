@@ -79,7 +79,7 @@
         </div>
         <button class="menu-button" on:click={() => code != ''? goto('/showcase/lobby?c=' + code): null}>Lobby Joinen</button>
         <button class="menu-button" on:click={handleLogout}>Uitloggen</button>
-        {#if data.user && data.user.admin}
+        {#if data.user && data.user.Admin}
             <button class="menu-button" on:click={() => goto('/showcase/admin')}>Admin Dashboard</button>
         {/if}
     {:else}

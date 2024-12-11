@@ -51,7 +51,7 @@
                     <td>{player.admin? 'Admin' : 'Player'}</td>
                     <td>{player.gamesPlayed}</td>
                     <td>{player.gamesLost}</td>
-                    <td>{player.lastPlayed? player.lastPlayed : ''}</td>
+                    <td>{player.lastPlayed? new Date(player.lastPlayed).toLocaleString() : ''}</td>
                 </tr>
             {/each}
         </tbody>
