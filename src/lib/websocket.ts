@@ -30,7 +30,7 @@ class WebSocketService {
         this.socket.onopen = () => {
             console.log('WebSocket connected.');
             this.sendToken(token);
-            this.startHeartbeat();
+            //this.startHeartbeat();
         };
 
         this.socket.onmessage = (event) => {
@@ -61,6 +61,7 @@ class WebSocketService {
             this.isConnected.set(false);
             this.socket = null;
             this.stopHeartbeat();
+            this.messageHandlers = [];
         };
 
         this.socket.onerror = (error) => {
@@ -69,7 +70,8 @@ class WebSocketService {
             this.socket?.close();
             this.socket = null;
             this.stopHeartbeat();
-            
+            this.messageHandlers = [];
+
         };
 
         return true;
@@ -104,7 +106,7 @@ class WebSocketService {
                 this.socket!.close();
                 this.isConnected.set(false);
             }
-        }, 60000); // Send heartbeat every 30 seconds
+        }, 60000); // Check if heartbeat is necessary every 60 seconds
     }
 
     private stopHeartbeat(): void {

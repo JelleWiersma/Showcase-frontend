@@ -2,7 +2,7 @@
     //@ts-nocheck
     import Help from "../Components/help.svelte";
     import {goto, beforeNavigate} from "$app/navigation";
-    import Lobby from "./lobby.svelte";
+    import Lobby from "../Components/lobby.svelte";
     import { onMount } from "svelte";
     
     /**
@@ -41,10 +41,6 @@
         } else {
             goto/('/showcase');
         }
-    });
-
-    beforeNavigate(() => {
-        lobby.disconnect();
     });
     
 
@@ -89,7 +85,7 @@
         </div>
     </div>
     <div class="horizontal-line"></div>
-    <Lobby bind:this={lobby}></Lobby>
+    <Lobby bind:localPlayerId={data.user.Id} bind:isHost={isHost} bind:this={lobby}></Lobby>
     <div class="Horizontal-line"></div>
     {#if isHost}
         <button class="menu-button">Spel Starten</button>
