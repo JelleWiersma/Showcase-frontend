@@ -45,13 +45,13 @@
     
 
     async function handleLeave() {
-        lobby.disconnect();
+        await lobby.disconnect();
         goto('/showcase');
     }
 </script>
 
 <svelte:head>
-    Lobby
+    <title>Lobby</title>
 </svelte:head>
 <div class="content">
     <span class="title-text">Zweeds Pesten</span>
@@ -86,7 +86,7 @@
     </div>
     <div class="horizontal-line"></div>
     <Lobby bind:localPlayerId={data.user.Id} bind:isHost={isHost} bind:this={lobby}></Lobby>
-    <div class="Horizontal-line"></div>
+    <div class="horizontal-line"></div>
     {#if isHost}
         <button class="menu-button">Spel Starten</button>
     {:else}

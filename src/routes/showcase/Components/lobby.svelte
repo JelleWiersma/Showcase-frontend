@@ -2,21 +2,26 @@
     import type { User } from "$lib/models/User";
     import { WebSocketDTO, MessageType } from "$lib/models/WebSocketDTO";
     import { webSocketService } from "$lib/websocket";
-    import { onMount } from "svelte";
+    import { onDestroy } from "svelte";
 
     export let isHost: boolean;
     export let localPlayerId: string;
+
+    let connected: boolean;
     let lobbyCode = '';
     let users: [User | null, User | null, User | null, User | null] = [null, null, null, null];
-    let connected: Boolean;
+
     const domain = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
+    // Connect to the websocket. The server handles reconnects.
     export async function connect(token: string, code: string | null = null) {
         if(code) {
             lobbyCode = code;
             connected = await webSocketService.connect(`${domain}/api/game/ws/${code}`, token);
+            isHost = false;
         } else {
             connected = await webSocketService.connect(`${domain}/api/game/ws/`, token);
+            isHost = true;
         }
         if(connected) {
             webSocketService.addMessageHandler(messageHandler);
@@ -26,20 +31,18 @@
     }
 
     export async function disconnect() {
-        webSocketService.disconnect();
+        await webSocketService.disconnect();
+        connected = false;
     }
 
     // if the component is not on screen, remove the message handler
     // this is to prevent memory leaks
-    onMount(() => {
-        return () => {
-            webSocketService.removeMessageHandler(messageHandler);
-        }
+    onDestroy(() => {
+        disconnect();
     });
 
     // After the websocketservice completes a connection, it will call this function with the remaining messages
     async function messageHandler(message: WebSocketDTO) {
-        console.log(message);
         switch (message.type) {
             case MessageType.LobbyCode:
                 lobbyCode = message.variables?.Code;
@@ -95,6 +98,10 @@
                     isHost = true;
                 }
                 removeGaps();
+                break;
+            
+            case MessageType.Close:
+                connected = false;
                 break;
         }
     }

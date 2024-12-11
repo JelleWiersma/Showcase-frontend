@@ -9,6 +9,7 @@ class WebSocketService {
     private isConnected = writable<boolean>(false);
     private lastMessageDate = new Date();
     private heartbeatInterval: number | null = null;
+    private lastUrl: string = '';
 
     private constructor() {}
 
@@ -20,9 +21,12 @@ class WebSocketService {
     }
 
     public async connect(url: string, token: string): Promise<boolean> {
+        if(this.isConnected && this.lastUrl === url) {
+            return true;
+        }
+
         if (this.socket) {
-            console.warn('WebSocket is already connected.');
-            return false;
+            this.socket = null;
         }
 
         this.socket = new WebSocket(url);
@@ -30,7 +34,7 @@ class WebSocketService {
         this.socket.onopen = () => {
             console.log('WebSocket connected.');
             this.sendToken(token);
-            //this.startHeartbeat();
+            this.startHeartbeat();
         };
 
         this.socket.onmessage = (event) => {
@@ -58,6 +62,9 @@ class WebSocketService {
 
         this.socket.onclose = () => {
             console.log('WebSocket disconnected.');
+            var message = new WebSocketDTO(MessageType.Close, '');
+            this.messages.update((msgs) => [...msgs, message]);
+                this.messageHandlers.forEach((handler) => handler(message));
             this.isConnected.set(false);
             this.socket = null;
             this.stopHeartbeat();
@@ -68,16 +75,12 @@ class WebSocketService {
             console.error('WebSocket error:', error);
             this.isConnected.set(false);
             this.socket?.close();
-            this.socket = null;
-            this.stopHeartbeat();
-            this.messageHandlers = [];
-
         };
 
         return true;
     }
 
-    public disconnect(): void {
+    public async disconnect(): Promise<void> {
         if (this.socket) {
             this.socket.close();
         }
@@ -104,7 +107,6 @@ class WebSocketService {
             } else if (this.isConnected && timeSinceLastMessage > 120000) {
                 console.log('No response from server, closing connection.');
                 this.socket!.close();
-                this.isConnected.set(false);
             }
         }, 60000); // Check if heartbeat is necessary every 60 seconds
     }
