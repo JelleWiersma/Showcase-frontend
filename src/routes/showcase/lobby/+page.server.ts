@@ -4,9 +4,6 @@ import { getUser, saveUser } from '$lib/server/auth';
 export const load = async ({ cookies, url }) => {
     // Get the 'c' parameter from the URL
     const cParam = url.searchParams.get('c');
-    if(cParam){
-        cookies.set('lastCode', cParam, { path: '/', maxAge: 1800 });
-    }
 
     // update the user cookie if it exists
     const userCookie = cookies.get('user');
