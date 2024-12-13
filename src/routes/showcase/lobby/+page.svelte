@@ -45,7 +45,7 @@
     
 
     async function handleLeave() {
-        await lobby.disconnect();
+        lobby.disconnect();
         goto('/showcase');
     }
 </script>
@@ -88,9 +88,9 @@
     <Lobby bind:localPlayerId={data.user.Id} bind:isHost={isHost} bind:this={lobby}></Lobby>
     <div class="horizontal-line"></div>
     {#if isHost}
-        <button class="menu-button">Spel Starten</button>
+        <button class="menu-button" on:click={lobby.startGame}>Spel Starten</button>
     {:else}
-        <p>Verbonden met Lobby, wacht tot de host het spel start</p>
+        <p>Wacht tot de host het spel start</p>
     {/if}
     <button class="menu-button" on:click={help.open()}>Speluitleg</button>
     <button class="menu-button" on:click={handleLeave}>Lobby verlaten</button>

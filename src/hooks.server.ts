@@ -84,7 +84,6 @@ async function verifyToken(token: string, event: any) {
                 return false;
             }
         } else {
-            console.log(error);
             return false;
         }
     }

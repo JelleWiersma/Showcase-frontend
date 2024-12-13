@@ -1,4 +1,5 @@
 <script>
+    import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { hideNavigation } from '$lib/store';
     import { onMount } from 'svelte';
@@ -49,13 +50,13 @@
 <header role="navigation" class:hideNav={isHidden} on:mouseenter={onMouseEnter} on:mouseleave={onMouseLeave}>
 	<nav>
 		<div class="box">
-            <a href="/" aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</a>
+            <button on:click={() => goto('/')} aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</button>
         </div>
         <div class="box">
-            <a href="/contact" aria-current={$page.url.pathname === '/contact' ? 'page' : undefined}>Contact</a>
+            <button on:click={() => goto('/contact')} aria-current={$page.url.pathname === '/contact' ? 'page' : undefined}>Contact</button>
         </div>
         <div class="box">
-            <a href="/showcase" aria-current={$page.url.pathname.startsWith('/showcase') ? 'page' : undefined}>Showcase</a>
+            <button on:click={() => goto('/showcase')} aria-current={$page.url.pathname.startsWith('/showcase') ? 'page' : undefined}>Showcase</button>
         </div>
     </nav>
 </header>
@@ -108,19 +109,25 @@
         transform: scale(1.04);
     }
 
-	nav a {
+	nav button {
 		display: flex;
 		height: 100%;
+		width: 100%;
 		align-items: center;
 		justify-content: center;
 		color: var(--color-theme-1);
 		font-weight: 600;
 		font-size: 24px;
+		box-shadow: none;
 		text-decoration: underline transparent;
 		transition: text-decoration 0.5s ease-in-out;
 	}
+
+	nav button:hover {
+		background-color: transparent;
+	}
 	
-	nav a[aria-current='page'] {
+	nav button[aria-current='page'] {
 		text-decoration: underline;
 	}
 
@@ -134,7 +141,7 @@
             height: 25px;
         }
 
-		nav a {
+		nav button {
 			font-size: 20px;
 		}
     }
@@ -149,7 +156,7 @@
 			height: 20px;
 		}
 
-		nav a {
+		nav button {
 			font-size: 16px;}
 	}
 </style>

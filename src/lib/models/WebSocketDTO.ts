@@ -44,7 +44,6 @@ export class WebSocketDTO {
                 return new WebSocketDTO(type, playerId, variables);
             }
         } catch (error) {
-            console.error("Failed to parse WebSocket message:", error);
         }
         return new WebSocketDTO(MessageType.Unknown, "");
     }

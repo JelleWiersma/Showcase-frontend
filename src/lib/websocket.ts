@@ -32,7 +32,6 @@ class WebSocketService {
         this.socket = new WebSocket(url);
 
         this.socket.onopen = () => {
-            console.log('WebSocket connected.');
             this.sendToken(token);
             this.startHeartbeat();
         };
@@ -53,7 +52,6 @@ class WebSocketService {
                 this.lastMessageDate = new Date();
             }
             else if (message.type === MessageType.Unknown) {
-                console.warn('Unknown WebSocket message:', message);
             } else {
                 this.messages.update((msgs) => [...msgs, message]);
                 this.messageHandlers.forEach((handler) => handler(message));
@@ -72,7 +70,6 @@ class WebSocketService {
         };
 
         this.socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
             this.isConnected.set(false);
             this.socket?.close();
         };
@@ -103,7 +100,6 @@ class WebSocketService {
             if (this.isConnected && timeSinceLastMessage > 60000) {
                 const heartbeatMessage = new WebSocketDTO(MessageType.Ping, '');
                 this.socket!.send(heartbeatMessage.serialize());
-                console.log('Sent heartbeat to server.');
             } else if (this.isConnected && timeSinceLastMessage > 120000) {
                 console.log('No response from server, closing connection.');
                 this.socket!.close();
@@ -121,8 +117,6 @@ class WebSocketService {
     public sendMessage(message: WebSocketDTO): void {
         if (this.socket && this.socket.readyState === WebSocket.OPEN && this.isConnected) {
             this.socket.send(message.serialize());
-        } else {
-            console.warn('WebSocket is not connected.');
         }
     }
 

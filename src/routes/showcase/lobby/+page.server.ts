@@ -1,5 +1,4 @@
 import { goto } from '$app/navigation';
-import { getUser, saveUser } from '$lib/server/auth';
 
 export const load = async ({ cookies, url }) => {
     // Get the 'c' parameter from the URL
@@ -8,8 +7,7 @@ export const load = async ({ cookies, url }) => {
     // update the user cookie if it exists
     const userCookie = cookies.get('user');
     if(userCookie){
-        const user = await getUser(cookies);
-        saveUser(user, cookies);
+        const user = JSON.parse(userCookie);
         return {
             token: cookies.get('token'),
             user: user,

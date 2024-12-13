@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import type { User } from "$lib/models/User";
     import { WebSocketDTO, MessageType } from "$lib/models/WebSocketDTO";
     import { webSocketService } from "$lib/websocket";
@@ -33,6 +34,13 @@
     export async function disconnect() {
         await webSocketService.disconnect();
         connected = false;
+    }
+
+    export function startGame() {
+        if(isHost && connected && users.length > 1) {
+            webSocketService.sendMessage(new WebSocketDTO(MessageType.StartGame, localPlayerId));
+        }
+        
     }
 
     // if the component is not on screen, remove the message handler
@@ -102,6 +110,10 @@
             
             case MessageType.Close:
                 connected = false;
+                break;
+
+            case MessageType.StartGame:
+                goto(`/showcase/game/${lobbyCode}`);
                 break;
         }
     }
