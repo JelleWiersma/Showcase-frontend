@@ -1,3 +1,8 @@
+<svelte:head>
+	<title>Aanmelden</title>
+	<script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
+</svelte:head>
+
 <script>
 // @ts-nocheck
 
@@ -11,11 +16,11 @@
 	let isValidName = false;
 	let isValidEmail = false;
 	let isValidPassword = false;
-	let recaptcha;
+	let captcha;
 	let token;
 	let rerenderCaptcha = false;
-	let isValidRecaptcha = false;
-	const recaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_RECAPTCHA_SITE_KEY : import.meta.env.VITE_RECAPTCHA_TEST_KEY;
+	let isValidCaptcha = false;
+	const hCaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_HCAPTCHA_SITE_KEY : import.meta.env.VITE_HCAPTCHA_TEST_KEY;
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const passwordReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{12,}$/;
 	
@@ -42,49 +47,45 @@
 			isValidPassword = value.length >= 12 && value.length <= 128 && passwordReg.test(value);
 		}
 		// Update submit button
-		canSubmit = isValidName && isValidEmail && isValidPassword && isValidRecaptcha;
+		canSubmit = isValidName && isValidEmail && isValidPassword && isValidCaptcha;
 	}
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
-			// render recaptcha when the scipt is loaded
-			window.recaptchaCallback = function() {
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-			};
-			
-			// Callback function for successfull recaptcha
+			// Callback function for successfull captcha
 			window.handleCaptcha = function(response) {
 				token = response;
-				isValidRecaptcha = true;
-				canSubmit = isValidName && isValidEmail && isValidRecaptcha && isValidPassword;
+				isValidCaptcha = true;
+				canSubmit = isValidName && isValidEmail && isValidPassword && isValidCaptcha;
 			};
 
-			// Callback function for expired recaptcha
+			// Callback function for expired captcha
 			window.handleCaptchaExpired = function() {
-				isValidRecaptcha = false;
+				isValidCaptcha = false;
 				canSubmit = false;
 			};
 
-			// Load recaptcha script
-			if(document.querySelector('script[src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit"]') === null){
-				const script = document.createElement('script');
-				script.src = 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit';
-				script.async = true;
-				script.defer = true;
-				document.body.appendChild(script);
-			} else {
-				//render recaptcha if the script is already loaded
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
+			//render captcha if the script is already loaded
+			captcha = hcaptcha.render('hcaptcha', {
+				'sitekey': hCaptchaSiteKey,
+				'callback': 'handleCaptcha',
+				'expired-callback': 'handleCaptchaExpired'
+			});
+			
+		}
+	});
+
+	afterUpdate(() => {
+		// Rerender captcha when the form has been submitted
+		if (typeof window !== 'undefined') {
+			if (rerenderCaptcha) {
+				hcaptcha.render('hcaptcha', {
+					'sitekey': hCaptchaSiteKey,
 					'callback': 'handleCaptcha',
 					'expired-callback': 'handleCaptchaExpired'
 				});
+				rerenderCaptcha = false;
 			}
-			
 		}
 	});
 
@@ -99,7 +100,7 @@
 			Email: DOMPurify.sanitize(form.email.value),
 			Username: DOMPurify.sanitize(form.name.value),
 			Password: form.password.value,
-			RecaptchaToken: token
+			HcaptchaToken: token
 		};
 
 	    // Send a POST request
@@ -121,14 +122,11 @@
 		isValidName = false;
 		isValidEmail = false;
 		isValidPassword = false;
-		isValidRecaptcha = false;
+		isValidCaptcha = false;
 		showSpinner = false;
+		rerenderCaptcha = true;
 	}
 </script>
-
-<svelte:head>
-    <title>Aanmelden</title>
-</svelte:head>
 
 <div class="content">
 	{#if showSpinner}
@@ -156,7 +154,7 @@
 				<input type="password" id="password" name="password" placeholder="Wachtwoord" on:input={validateInput} pattern="{passwordReg.source}" maxlength="128" autocomplete="current-password">
 				<div class="validation-message">Wachtwoord moet tenminste 12 karakters, één hoofdletter, één kleine letter en één cijfer bevatten</div>
 			</section>
-			<div class="g-recaptcha" id="recaptcha"></div>
+			<div id="hcaptcha"></div>
 			<button type="submit" disabled={!canSubmit}>Registeren</button>
 		</form>
 

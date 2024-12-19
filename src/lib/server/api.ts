@@ -56,7 +56,7 @@ export async function sendAuthenticatedRequest(endpoint: string, method: string,
     }
 
     // Check if the token is valid. If not, refresh it
-    if (!token) return redirect(303, '/showcase/inloggen');
+    if (!token) return new Response('Unauthorized', { status: 401 });
 
     const decoded = jwtDecode(token);
     if (decoded.exp && decoded.exp * 1000 < Date.now()) {
@@ -65,7 +65,7 @@ export async function sendAuthenticatedRequest(endpoint: string, method: string,
         if (newTokens) {
             token = newTokens.token;
         } else {
-            return redirect(303, '/showcase/inloggen');
+            return new Response('Unauthorized', { status: 401 });
         }
     }
 

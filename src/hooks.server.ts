@@ -43,14 +43,13 @@ export const handle: Handle = async ({ event, resolve }) => {
             } else {
                 user = await getUser(event.cookies);
             }
+            await saveUser(user, event.cookies);
         } else {
             event.cookies.delete('token', { path: '/' });
             event.cookies.delete('refreshToken', { path: '/' });
             event.cookies.delete('user', { path: '/' });
         } 
     };
-
-    await saveUser(user, event.cookies);
 
     // if route is not protected, resolve
     if(!protectedRoutes.includes(event.url.pathname) && !adminRoutes.includes(event.url.pathname))

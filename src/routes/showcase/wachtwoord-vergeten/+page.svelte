@@ -14,57 +14,56 @@
     let showFailure = false;
     let failureNotification;
     let failureMessage;
-    let isValidRecaptcha = false;
+    let isValidhcaptcha = false;
     let showSpinner = false;
 
     let rerenderCaptcha = false;
-    let recaptcha;
+    let hcaptcha;
     let token;
     
 
-    const recaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_RECAPTCHA_SITE_KEY : import.meta.env.VITE_RECAPTCHA_TEST_KEY;
+    const hcaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_HCAPTCHA_SITE_KEY : import.meta.env.VITE_HCAPTCHA_TEST_KEY;
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     onMount(async () => {
 		if (typeof window !== 'undefined') {
-			// render recaptcha when the scipt is loaded
-			window.recaptchaCallback = function() {
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-			};
+			// render captcha when the scipt is loaded
 			
-			// Callback function for successfull recaptcha
+			
+			// Callback function for successfull captcha
 			window.handleCaptcha = function(response) {
 				token = response;
-				isValidRecaptcha = true;
-				canSubmit = isValidEmail && isValidRecaptcha;
+				isValidhcaptcha = true;
+				canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
 			};
 
-			// Callback function for expired recaptcha
+			// Callback function for expired captcha
 			window.handleCaptchaExpired = function() {
-				isValidRecaptcha = false;
+				isValidhcaptcha = false;
 				canSubmit = false;
 			};
 
-			// Load recaptcha script
-			if(document.querySelector('script[src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit"]') === null){
-				const script = document.createElement('script');
-				script.src = 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit';
-				script.async = true;
-				script.defer = true;
-				document.body.appendChild(script);
-			} else {
-				//render recaptcha if the script is already loaded
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
+			//render captcha if the script is already loaded
+			hCaptcha = hcaptcha.render('hcaptcha', {
+				'sitekey': hCaptchaSiteKey,
+				'callback': 'handleCaptcha',
+				'expired-callback': 'handleCaptchaExpired'
+			});
+			
+		}
+	});
+
+    afterUpdate(() => {
+		// Rerender captcha when the form has been submitted
+		if (typeof window !== 'undefined') {
+			if (rerenderCaptcha) {
+				hcaptcha.render('hcaptcha', {
+					'sitekey': hCaptchaSiteKey,
 					'callback': 'handleCaptcha',
 					'expired-callback': 'handleCaptchaExpired'
 				});
+				rerenderCaptcha = false;
 			}
-			
 		}
 	});
 
@@ -79,12 +78,12 @@
             isValidEmail = value.length >= 1 && value.length <= 80 && emailReg.test(value);
         }
         // Update submit button
-        canSubmit = isValidEmail && isValidRecaptcha;
+        canSubmit = isValidEmail && isValidhcaptcha;
     }
 
     async function onSubmit(event) {
         event.preventDefault();
-        if(!isValidEmail || !isValidRecaptcha) return;
+        if(!isValidEmail || !isValidhcaptcha) return;
         showSpinner = true;
         const email = event.target.email.value;
         const response = await sendRequest('account/forgot-password', 'POST', { Email: email, Token: token });
@@ -97,6 +96,7 @@
             event.target.reset();
             showSpinner = false;
             canSubmit = false;
+            rerenderCaptcha = true;
         }
     }
 </script>
@@ -117,7 +117,7 @@
                 <input type="email" id="email" name="email" placeholder="Email adres" on:input={validateInput} pattern="{emailReg.source}" maxlength="80">
                 <div class="validation-message">Vul een geldig email adres in</div>
             </section>
-            <div class="g-recaptcha" id="recaptcha"></div><br>
+            <div id="hcaptcha"></div><br>
             <button type="submit" disabled={!canSubmit}>Reset Wachtwoord</button>
         </form>
         

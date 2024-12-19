@@ -1,12 +1,13 @@
 <svelte:head>
 	<title>Contact</title>
 	<meta name="description" content="Contact form" />
+	<script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
 </svelte:head>
 
 <div class="content">
     <span class="title-text">Stuur een bericht</span>
 	<p style="margin: 0px">
-		Laat een bericht achter voor Jelle Wiersma, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen.<br><br>
+		Laat een bericht achter, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen.<br><br>
 	</p>
 	<div class="horizontal-line"></div>
 
@@ -51,7 +52,7 @@
 				<textarea id="message" name="message" on:input={validateInput} maxlength="2000"></textarea>
 				<div class="validation-message">Dit veld is verplicht</div>
 			</section>
-			<div class="g-recaptcha" id="recaptcha"></div>
+			<div class="h-captcha" id="hcaptcha"></div>
 			<button type="submit" 
 					disabled={!canSubmit}>Verstuur</button>
 		</form>
@@ -85,13 +86,13 @@
 	let isValidPhone = false;
 	let isValidSubject = false;
 	let isValidMessage = false;
-	let isValidRecaptcha = false;
+	let isValidhcaptcha = false;
 	const phoneReg = /(^\+[0-9]{2}|^\+[0-9]{2}\(0\)|^\(\+[0-9]{2}\)\(0\)|^00[0-9]{2}|^0)([0-9]{9}$|[0-9\-\s]{10}$)/;
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-	//Recaptcha variables
-	const recaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_RECAPTCHA_SITE_KEY : import.meta.env.VITE_RECAPTCHA_TEST_KEY;
-	let recaptcha;
+	//captcha variables
+	const hCaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_HCAPTCHA_SITE_KEY : import.meta.env.VITE_HCAPTCHA_TEST_KEY;
+	let captcha;
 	let token;
 	let rerenderCaptcha = false;
 	
@@ -102,56 +103,38 @@
 	let showFailure = false;
 	let failureMessage;
 
-	//Render Recaptcha
+	//Render captcha
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
-			// render recaptcha when the scipt is loaded
-			window.recaptchaCallback = function() {
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-			};
-			
-			// Callback function for successfull recaptcha
+			// Callback function for successfull captcha
 			window.handleCaptcha = function(response) {
 				token = response;
-				isValidRecaptcha = true;
-				canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
+				isValidhcaptcha = true;
+				canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
 			};
 
-			// Callback function for expired recaptcha
+			// Callback function for expired captcha
 			window.handleCaptchaExpired = function() {
-				isValidRecaptcha = false;
+				isValidhcaptcha = false;
 				canSubmit = false;
 			};
 
-			// Load recaptcha script
-			if(document.querySelector('script[src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit"]') === null){
-				const script = document.createElement('script');
-				script.src = 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit';
-				script.async = true;
-				script.defer = true;
-				document.body.appendChild(script);
-			} else {
-				//render recaptcha if the script is already loaded
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-			}
+			//render captcha if the script is already loaded
+			captcha = hcaptcha.render('hcaptcha', {
+				'sitekey': hCaptchaSiteKey,
+				'callback': 'handleCaptcha',
+				'expired-callback': 'handleCaptchaExpired'
+			});
 			
 		}
 	});
 
 	afterUpdate(() => {
-		// Rerender recaptcha when the form has been submitted
+		// Rerender captcha when the form has been submitted
 		if (typeof window !== 'undefined') {
 			if (rerenderCaptcha) {
-				grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
+				hcaptcha.render('hcaptcha', {
+					'sitekey': hCaptchaSiteKey,
 					'callback': 'handleCaptcha',
 					'expired-callback': 'handleCaptchaExpired'
 				});
@@ -183,7 +166,7 @@
 		}
 
 		// Update submit button
-		canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
+		canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
 	}
 	
 	async function onSubmit(event) {
@@ -200,7 +183,7 @@
 			phone: DOMPurify.sanitize(form.phone.value),
 			subject: DOMPurify.sanitize(form.subject.value),
 			message: DOMPurify.sanitize(form.message.value),
-			recaptchaToken: token
+			hcaptchaToken: token
 		};
 	    // Send a POST request
 		const response = await fetch('/contact', {
@@ -230,9 +213,9 @@
 		isValidPhone = false;
 		isValidSubject = false;
 		isValidMessage = false;
-		isValidRecaptcha = false;
+		isValidhcaptcha = false;
 		rerenderCaptcha = true;
-		grecaptcha.reset(recaptcha);
+		hcaptcha.reset(captcha);
 		showSpinner = false;
 	}
 </script>
@@ -301,7 +284,7 @@
         display: block;
     }
 
-	.g-recaptcha {
+	.h-captcha {
         display: flex;
         align-self: end;
     }
