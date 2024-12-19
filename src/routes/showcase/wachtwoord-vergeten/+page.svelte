@@ -1,3 +1,8 @@
+<svelte:head>
+    <title>Wachtwoord Vergeten</title>
+    <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
+</svelte:head>
+
 <script>
     // @ts-nocheck
     import { user } from "$lib/store";
@@ -18,11 +23,10 @@
     let showSpinner = false;
 
     let rerenderCaptcha = false;
-    let hcaptcha;
     let token;
     
 
-    const hcaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_HCAPTCHA_SITE_KEY : import.meta.env.VITE_HCAPTCHA_TEST_KEY;
+    const hCaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_HCAPTCHA_SITE_KEY : import.meta.env.VITE_HCAPTCHA_TEST_KEY;
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     onMount(async () => {
@@ -34,7 +38,7 @@
 			window.handleCaptcha = function(response) {
 				token = response;
 				isValidhcaptcha = true;
-				canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
+				canSubmit = isValidEmail && isValidhcaptcha;
 			};
 
 			// Callback function for expired captcha
@@ -43,8 +47,8 @@
 				canSubmit = false;
 			};
 
-			//render captcha if the script is already loaded
-			hCaptcha = hcaptcha.render('hcaptcha', {
+			//render captcha
+			hcaptcha.render('hcaptcha', {
 				'sitekey': hCaptchaSiteKey,
 				'callback': 'handleCaptcha',
 				'expired-callback': 'handleCaptchaExpired'
@@ -100,10 +104,6 @@
         }
     }
 </script>
-
-<svelte:head>
-    <title>Wachtwoord Vergeten</title>
-</svelte:head>
 
 <div class="content">
     {#if showSpinner}
