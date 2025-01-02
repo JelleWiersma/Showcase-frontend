@@ -46,7 +46,7 @@
     // if the component is not on screen, remove the message handler
     // this is to prevent memory leaks
     onDestroy(() => {
-        disconnect();
+        webSocketService.removeMessageHandler(messageHandler);
     });
 
     // After the websocketservice completes a connection, it will call this function with the remaining messages
@@ -112,7 +112,7 @@
                 connected = false;
                 break;
 
-            case MessageType.StartGame:
+            case MessageType.GameStarting:
                 goto(`/showcase/game/${lobbyCode}`);
                 break;
         }

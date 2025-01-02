@@ -6,7 +6,7 @@ class WebSocketService {
     private socket: WebSocket | null = null;
     private messageHandlers: ((message: WebSocketDTO) => void)[] = [];
     public messages = writable<WebSocketDTO[]>([]);
-    private isConnected = writable<boolean>(false);
+    public isConnected = false;
     private lastMessageDate = new Date();
     private heartbeatInterval: number | null = null;
     private lastUrl: string = '';
@@ -40,18 +40,16 @@ class WebSocketService {
             const message = WebSocketDTO.parse(event.data);
 
             if (message.type === MessageType.Connected || message.type === MessageType.Reconnected) {
-                this.isConnected.set(true);
+                this.isConnected = true;
                 console.log('WebSocket connection established.');
             } else if (message.type === MessageType.Close) {
                 this.socket?.close();
-                this.isConnected.set(false);
+                this.isConnected = false;
                 console.log('WebSocket connection closed by server.');
             } else if(message.type === MessageType.Ping) {
                 this.sendMessage(new WebSocketDTO(MessageType.Pong, message.playerId));
             } else if(message.type === MessageType.Pong) {
                 this.lastMessageDate = new Date();
-            }
-            else if (message.type === MessageType.Unknown) {
             } else {
                 this.messages.update((msgs) => [...msgs, message]);
                 this.messageHandlers.forEach((handler) => handler(message));
@@ -63,14 +61,14 @@ class WebSocketService {
             var message = new WebSocketDTO(MessageType.Close, '');
             this.messages.update((msgs) => [...msgs, message]);
                 this.messageHandlers.forEach((handler) => handler(message));
-            this.isConnected.set(false);
+            this.isConnected = false;
             this.socket = null;
             this.stopHeartbeat();
             this.messageHandlers = [];
         };
 
         this.socket.onerror = (error) => {
-            this.isConnected.set(false);
+            this.isConnected = (false);
             this.socket?.close();
         };
 

@@ -1,6 +1,8 @@
 <script>
     import Help from "./help.svelte";
     import {goto} from "$app/navigation";
+    import { webSocketService } from "$lib/websocket";
+    import { onMount } from "svelte";
     
     /**
      * @type {Help}
@@ -26,6 +28,12 @@
         loggedIn = true;
     }
 
+    onMount(() => {
+        if(data && data.user && data.user.LoggedIn) {
+            webSocketService.disconnect();
+        }
+    });
+
     async function handleLogout() {
         const response = await fetch('/showcase/uitloggen', {
             method: 'POST',
@@ -43,6 +51,7 @@
 <div class="content">
     <span class="title-text">Zweeds Pesten</span>
     <p style="margin: 0px">Welkom bij de showcase! Om een indruk te geven van mijn vaardigheden heb ik een online kaartspel gemaakt. In sommige kringen wordt dit spel “Klootzakken” genoemd, maar in mijn omgeving staat het bekend als “Zweeds Pesten”. Dus nodig een paar vrienden uit, probeer ze te verslaan, en veel plezier!</p>
+    <p style="margin: 0px">Het spel is helaas nog niet speelbaar, maar het maken van accounts en joinen van lobbies kan vast getest worden.</p>
     <div class="horizontal-line"></div>
     {#if loggedIn}
         <div class="player-stats">

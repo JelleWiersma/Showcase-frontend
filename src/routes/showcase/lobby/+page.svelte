@@ -45,7 +45,6 @@
     
 
     async function handleLeave() {
-        lobby.disconnect();
         goto('/showcase');
     }
 </script>
