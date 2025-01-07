@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
-import { VITE_JWT_KEY } from '$env/static/private';
+import { JWT_KEY } from '$env/static/private';
 import { handleTokenRefresh } from '$lib/server/auth';
 import type { User } from '$lib/models/User';
 import { getUser, saveUser } from '$lib/server/auth';
@@ -71,7 +71,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 async function verifyToken(token: string, event: any) {
     let decoded;
     try {
-        decoded = await jwt.verify(token, VITE_JWT_KEY);
+        decoded = await jwt.verify(token, JWT_KEY);
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
             //refresh token
