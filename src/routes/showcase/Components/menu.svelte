@@ -84,7 +84,7 @@
         <div class="horizontal-line"></div>
         <button class="menu-button" on:click={() => goto('/showcase/lobby')}>Lobby Hosten</button>
         <div class="nice-form-group" style="width: 50%; align-self:center; margin-top: 5px;">
-            <input type="text" id="lobby-code" placeholder="Lobby code" style="box-sizing:border-box" bind:value={code}>
+            <input type="text" id="lobby-code" placeholder="Lobby code" style="box-sizing:border-box" bind:value={code} maxlength="6">
         </div>
         <button class="menu-button" on:click={() => code != ''? goto('/showcase/lobby?c=' + code): null}>Lobby Joinen</button>
         <button class="menu-button" on:click={handleLogout}>Uitloggen</button>
