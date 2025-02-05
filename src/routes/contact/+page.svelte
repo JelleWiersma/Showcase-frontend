@@ -6,7 +6,7 @@
 <div class="content">
     <span class="title-text">Stuur een bericht</span>
 	<p style="margin: 0px">
-		Laat een bericht achter voor Jelle Wiersma, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen.<br><br>
+		Laat een bericht achter, en ik zal indien nodig binnen één werkweek een reactie sturen. Je gegevens worden gebruikt om reactie mogelijk te maken, en worden niet opgeslagen.<br><br>
 	</p>
 	<div class="horizontal-line"></div>
 
@@ -51,7 +51,7 @@
 				<textarea id="message" name="message" on:input={validateInput} maxlength="2000"></textarea>
 				<div class="validation-message">Dit veld is verplicht</div>
 			</section>
-			<div class="g-recaptcha" id="recaptcha"></div>
+			<div class="h-captcha" bind:this={captchaElement} id="hcaptcha"></div>
 			<button type="submit" 
 					disabled={!canSubmit}>Verstuur</button>
 		</form>
@@ -85,15 +85,15 @@
 	let isValidPhone = false;
 	let isValidSubject = false;
 	let isValidMessage = false;
-	let isValidRecaptcha = false;
+	let isValidhcaptcha = false;
 	const phoneReg = /(^\+[0-9]{2}|^\+[0-9]{2}\(0\)|^\(\+[0-9]{2}\)\(0\)|^00[0-9]{2}|^0)([0-9]{9}$|[0-9\-\s]{10}$)/;
 	const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-	//Recaptcha variables
-	const recaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_RECAPTCHA_SITE_KEY : import.meta.env.VITE_RECAPTCHA_TEST_KEY;
-	let recaptcha;
+	//captcha variables
+	const hCaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_HCAPTCHA_SITE_KEY : import.meta.env.VITE_HCAPTCHA_TEST_KEY;
 	let token;
-	let rerenderCaptcha = false;
+	let captchaLoaded = false;
+	let captchaElement;
 	
 	//Page variables
 	let showSpinner = false;
@@ -102,63 +102,53 @@
 	let showFailure = false;
 	let failureMessage;
 
-	//Render Recaptcha
+	//Render captcha
 	onMount(async () => {
-		if (typeof window !== 'undefined') {
-			// render recaptcha when the scipt is loaded
-			window.recaptchaCallback = function() {
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-			};
+		try {
+            await loadCaptcha();
+            captchaLoaded = true;
+            renderCaptcha();
 			
-			// Callback function for successfull recaptcha
-			window.handleCaptcha = function(response) {
-				token = response;
-				isValidRecaptcha = true;
-				canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
-			};
-
-			// Callback function for expired recaptcha
-			window.handleCaptchaExpired = function() {
-				isValidRecaptcha = false;
-				canSubmit = false;
-			};
-
-			// Load recaptcha script
-			if(document.querySelector('script[src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit"]') === null){
-				const script = document.createElement('script');
-				script.src = 'https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit';
-				script.async = true;
-				script.defer = true;
-				document.body.appendChild(script);
-			} else {
-				//render recaptcha if the script is already loaded
-				recaptcha = grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-			}
-			
-		}
+        } catch (error) {
+            console.error('Failed to load hCaptcha');
+        }
 	});
 
-	afterUpdate(() => {
-		// Rerender recaptcha when the form has been submitted
-		if (typeof window !== 'undefined') {
-			if (rerenderCaptcha) {
-				grecaptcha.render('recaptcha', {
-					'sitekey': recaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-				rerenderCaptcha = false;
+	function loadCaptcha() {
+		return new Promise((resolve, reject) => {
+			if(document.getElementById('hcaptcha-script')){
+				resolve();
 			}
+            const script = document.createElement('script');
+            script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+            script.async = true;
+            script.defer = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load hCaptcha script'));
+			script.id = 'hcaptcha-script';
+            document.head.appendChild(script);
+        });
+	}
+
+	function renderCaptcha(){
+		if(captchaLoaded && captchaElement){
+			captchaElement = window.hcaptcha.render('hcaptcha', {
+				'sitekey': hCaptchaSiteKey,
+				'callback': function(response) {
+					token = response;
+					isValidhcaptcha = true;
+					canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
+				},
+				'expired-callback': function() {
+					isValidhcaptcha = false;
+					canSubmit = false;
+					token = null;
+				}
+			});
 		}
-	});
+	}
+
+	
 	
 	function validateInput(event) {
 		// prepare input
@@ -183,7 +173,7 @@
 		}
 
 		// Update submit button
-		canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidRecaptcha;
+		canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
 	}
 	
 	async function onSubmit(event) {
@@ -200,7 +190,7 @@
 			phone: DOMPurify.sanitize(form.phone.value),
 			subject: DOMPurify.sanitize(form.subject.value),
 			message: DOMPurify.sanitize(form.message.value),
-			recaptchaToken: token
+			hcaptchaToken: token
 		};
 	    // Send a POST request
 		const response = await fetch('/contact', {
@@ -230,9 +220,7 @@
 		isValidPhone = false;
 		isValidSubject = false;
 		isValidMessage = false;
-		isValidRecaptcha = false;
-		rerenderCaptcha = true;
-		grecaptcha.reset(recaptcha);
+		isValidhcaptcha = false;
 		showSpinner = false;
 	}
 </script>
@@ -301,7 +289,7 @@
         display: block;
     }
 
-	.g-recaptcha {
+	.h-captcha {
         display: flex;
         align-self: end;
     }

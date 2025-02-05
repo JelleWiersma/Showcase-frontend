@@ -1,17 +1,62 @@
 <script>
+    import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { hideNavigation } from '$lib/store';
+    import { onMount } from 'svelte';
+
+	let shouldHide = false;
+	let isHidden = false;
+	hideNavigation.subscribe(value => {
+		shouldHide = value;
+		isHidden = value;
+	});
+
+	
+	/**
+     * @type {NodeJS.Timeout | undefined}
+     */
+	let timeoutId;
+
+	onMount(() => {
+		if (shouldHide) {
+			isHidden = true;
+		} else {
+			isHidden = false;
+		}
+	});
+	
+	function onMouseEnter() {
+		if (shouldHide) {
+			if(timeoutId){
+				clearTimeout(timeoutId);
+			}
+			isHidden = false;
+		} else{ 
+			isHidden = false;
+		}
+	}
+
+	function onMouseLeave() {
+		if (shouldHide) {
+			timeoutId = setTimeout(() => {
+				isHidden = true;
+			}, 2000);
+		} else {
+			isHidden = false;
+		}
+	}
 </script>
 
-<header>
-    <nav>
-        <div class="box">
-            <a href="/" aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</a>
+<header role="navigation" class:hideNav={isHidden} on:mouseenter={onMouseEnter} on:mouseleave={onMouseLeave}>
+	<nav>
+		<div class="box">
+            <button on:click={() => goto('/')} aria-current={$page.url.pathname === '/' ? 'page' : undefined}>Home</button>
         </div>
         <div class="box">
-            <a href="/contact" aria-current={$page.url.pathname === '/contact' ? 'page' : undefined}>Contact</a>
+            <button on:click={() => goto('/contact')} aria-current={$page.url.pathname === '/contact' ? 'page' : undefined}>Contact</button>
         </div>
         <div class="box">
-            <a href="/showcase" aria-current={$page.url.pathname.startsWith('/showcase') ? 'page' : undefined}>Showcase</a>
+            <button on:click={() => goto('/showcase')} aria-current={$page.url.pathname.startsWith('/showcase') ? 'page' : undefined}>Showcase</button>
         </div>
     </nav>
 </header>
@@ -20,16 +65,20 @@
 	header {
 		position: fixed;
 		top: calc(2.3svh + 10px);
-		left: 0;
-		width: 100%;
+		left: 50%;
+		transform: translateX(-50%);
 		display: flex;
 		justify-content: center;
 		z-index: 1000;
+		transition: top 0.5s ease-in-out;
+	}
+
+	.hideNav {
+		top: -30px;
 	}
 
 	nav {
 		display: flex;
-		flex-wrap: wrap;
 		justify-content: space-around;
 		gap: 1rem;
 		--background: var(--color-bg-1);
@@ -60,19 +109,25 @@
         transform: scale(1.04);
     }
 
-	nav a {
+	nav button {
 		display: flex;
 		height: 100%;
+		width: 100%;
 		align-items: center;
 		justify-content: center;
 		color: var(--color-theme-1);
 		font-weight: 600;
 		font-size: 24px;
+		box-shadow: none;
 		text-decoration: underline transparent;
 		transition: text-decoration 0.5s ease-in-out;
 	}
+
+	nav button:hover {
+		background-color: transparent;
+	}
 	
-	nav a[aria-current='page'] {
+	nav button[aria-current='page'] {
 		text-decoration: underline;
 	}
 
@@ -86,8 +141,22 @@
             height: 25px;
         }
 
-		nav a {
+		nav button {
 			font-size: 20px;
 		}
     }
+
+	@media (max-width: 335px) {
+		nav {
+			gap: 5px;
+		}
+
+		.box {
+			width: 80px;
+			height: 20px;
+		}
+
+		nav button {
+			font-size: 16px;}
+	}
 </style>

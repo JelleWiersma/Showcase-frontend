@@ -3,6 +3,7 @@
 	import Header from './Header.svelte';
 	import "../../node_modules/nice-forms\.css/dist/nice-forms.css";
 	import './styles.css';
+
 </script>
 
 <div class="app">
