@@ -1,7 +1,6 @@
 <svelte:head>
 	<title>Contact</title>
 	<meta name="description" content="Contact form" />
-	<script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
 </svelte:head>
 
 <div class="content">
@@ -52,7 +51,7 @@
 				<textarea id="message" name="message" on:input={validateInput} maxlength="2000"></textarea>
 				<div class="validation-message">Dit veld is verplicht</div>
 			</section>
-			<div class="h-captcha" id="hcaptcha"></div>
+			<div class="h-captcha" bind:this={captchaElement} id="hcaptcha"></div>
 			<button type="submit" 
 					disabled={!canSubmit}>Verstuur</button>
 		</form>
@@ -92,9 +91,9 @@
 
 	//captcha variables
 	const hCaptchaSiteKey = import.meta.env.MODE === 'production' ? import.meta.env.VITE_HCAPTCHA_SITE_KEY : import.meta.env.VITE_HCAPTCHA_TEST_KEY;
-	let captcha;
 	let token;
-	let rerenderCaptcha = false;
+	let captchaLoaded = false;
+	let captchaElement;
 	
 	//Page variables
 	let showSpinner = false;
@@ -105,43 +104,51 @@
 
 	//Render captcha
 	onMount(async () => {
-		if (typeof window !== 'undefined') {
-			// Callback function for successfull captcha
-			window.handleCaptcha = function(response) {
-				token = response;
-				isValidhcaptcha = true;
-				canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
-			};
-
-			// Callback function for expired captcha
-			window.handleCaptchaExpired = function() {
-				isValidhcaptcha = false;
-				canSubmit = false;
-			};
-
-			//render captcha if the script is already loaded
-			captcha = hcaptcha.render('hcaptcha', {
-				'sitekey': hCaptchaSiteKey,
-				'callback': 'handleCaptcha',
-				'expired-callback': 'handleCaptchaExpired'
-			});
+		try {
+            await loadCaptcha();
+            captchaLoaded = true;
+            renderCaptcha();
 			
-		}
+        } catch (error) {
+            console.error('Failed to load hCaptcha');
+        }
 	});
 
-	afterUpdate(() => {
-		// Rerender captcha when the form has been submitted
-		if (typeof window !== 'undefined') {
-			if (rerenderCaptcha) {
-				hcaptcha.render('hcaptcha', {
-					'sitekey': hCaptchaSiteKey,
-					'callback': 'handleCaptcha',
-					'expired-callback': 'handleCaptchaExpired'
-				});
-				rerenderCaptcha = false;
+	function loadCaptcha() {
+		return new Promise((resolve, reject) => {
+			if(document.getElementById('hcaptcha-script')){
+				resolve();
 			}
+            const script = document.createElement('script');
+            script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+            script.async = true;
+            script.defer = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load hCaptcha script'));
+			script.id = 'hcaptcha-script';
+            document.head.appendChild(script);
+        });
+	}
+
+	function renderCaptcha(){
+		if(captchaLoaded && captchaElement){
+			captchaElement = window.hcaptcha.render('hcaptcha', {
+				'sitekey': hCaptchaSiteKey,
+				'callback': function(response) {
+					token = response;
+					isValidhcaptcha = true;
+					canSubmit = isValidName && isValidSurname && isValidEmail && isValidPhone && isValidSubject && isValidMessage && isValidhcaptcha;
+				},
+				'expired-callback': function() {
+					isValidhcaptcha = false;
+					canSubmit = false;
+					token = null;
+				}
+			});
 		}
-	});
+	}
+
+	
 	
 	function validateInput(event) {
 		// prepare input
@@ -214,8 +221,6 @@
 		isValidSubject = false;
 		isValidMessage = false;
 		isValidhcaptcha = false;
-		rerenderCaptcha = true;
-		hcaptcha.reset(captcha);
 		showSpinner = false;
 	}
 </script>
